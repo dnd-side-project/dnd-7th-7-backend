@@ -2,7 +2,6 @@ name: build and test
 
 on:
   push:
-    branches: [ master ]
   pull_request:
     branches: [ master ]
 
@@ -20,3 +19,12 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
       - run: npm test
+        env:
+          MYSQLDB_HOST: ${{ secrets.MYSQLDB_HOST }}
+          MYSQLDB_USER: ${{ secrets.MYSQLDB_USER }}
+          MYSQLDB_PASSWORD: ${{ secrets.MYSQLDB_PASSWORD }}
+          MYSQLDB_DATABASE: ${{ secrets.MYSQLDB_DATABASE }}
+          MYSQLDB_LOCAL_PORT: ${{ secrets.MYSQLDB_LOCAL_PORT }}
+          MYSQLDB_DOCKER_PORT: ${{ secrets.MYSQLDB_DOCKER_PORT }}
+          NODE_LOCAL_PORT: ${{ secrets.NODE_LOCAL_PORT }}
+          NODE_DOCKER_PORT: ${{ secrets.NODE_DOCKER_PORT }}
