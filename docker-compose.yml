@@ -17,16 +17,10 @@ services:
     platform: linux/x86_64
 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: $DOCKER_HUB_USER/running-map
     container_name: web
     env_file: ./.env
     restart: always
-    volumes:
-      - ./:/app
-      - /app/node_modules
-      - /app/.next
     ports:
       - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
     depends_on:
