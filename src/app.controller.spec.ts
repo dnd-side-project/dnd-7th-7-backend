@@ -15,8 +15,8 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return "build-and-deploy test success"', () => {
+      expect(appController.getHello()).toBe('build-and-deploy test success');
     });
   });
 });
