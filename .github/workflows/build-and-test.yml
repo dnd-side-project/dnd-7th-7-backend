@@ -1,6 +1,7 @@
 name: build and test
 
 on:
+  push:
   pull_request_target:
     branches: [master]
 
@@ -27,16 +28,17 @@ jobs:
           push: false
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/running-map:latest
 
-  test:
+  coverage:
     needs: build
-    permissions:
-            checks: write
-            pull-requests: write
-            contents: write
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name : create coverage report
-        uses: ArtiomTr/jest-coverage-report-action@v2
+      - name : run coverage
+        run : |
+          npm ci
+          npm run test:cov
+      - name: upload coverage
+        uses: codecov/codecov-action@v2
         with:
-          test-script: npm test
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
