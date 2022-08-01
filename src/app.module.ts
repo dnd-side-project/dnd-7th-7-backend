@@ -4,6 +4,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
+import { RunningRoute } from './running-route/entities/running-route.entity';
+import { Bookmark } from './user/entities/bookmark.entity';
+import { Like } from './user/entities/like.entity';
 
 @Module({
   imports: [
@@ -14,7 +17,7 @@ import { User } from './user/entities/user.entity';
       username: process.env.MYSQLDB_USER,
       password: process.env.MYSQLDB_PASSWORD,
       database: process.env.MYSQLDB_DATABASE,
-      entities: [User],
+      entities: [User, RunningRoute, Bookmark, Like],
       synchronize: true, // Fix me : set this value to false when deploy
     }),
     UserModule,
