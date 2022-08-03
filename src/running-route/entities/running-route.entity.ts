@@ -36,8 +36,8 @@ export class RunningRoute {
   @Column({ type: 'date' })
   runningDate: Date;
 
-  @Column({ type: 'blob' })
-  routeImage: Buffer;
+  @Column({ type: 'varchar' })
+  routeImage: string;
 
   @CreateDateColumn()
   createdAt: Date;

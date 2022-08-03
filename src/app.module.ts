@@ -9,6 +9,7 @@ import { Bookmark } from './user/entities/bookmark.entity';
 import { Like } from './user/entities/like.entity';
 import { UserTag } from './user/entities/user-tag.entity';
 import { RouteTag } from './running-route/entities/route-tag.entities';
+import { RunningRouteModule } from './running-route/running-route.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RouteTag } from './running-route/entities/route-tag.entities';
       synchronize: true, // Fix me : set this value to false when deploy
     }),
     UserModule,
+    RunningRouteModule,
   ],
   controllers: [AppController],
   providers: [AppService],
