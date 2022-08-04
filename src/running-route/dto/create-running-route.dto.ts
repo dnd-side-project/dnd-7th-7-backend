@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
-import { IsString, IsArray, IsNumber, IsDateString } from 'class-validator';
+import { IsString, IsArray, IsDateString } from 'class-validator';
+import { IsFile, MemoryStoredFile } from 'nestjs-form-data';
 
 class location {
   public latitude: string;
@@ -20,6 +21,9 @@ export class CreateRunningRouteDto {
   @IsDateString()
   runningDate: Date;
 
-  @IsNumber({}, { each: true })
+  @IsArray()
   tags: number[];
+
+  @IsFile()
+  file: MemoryStoredFile;
 }
