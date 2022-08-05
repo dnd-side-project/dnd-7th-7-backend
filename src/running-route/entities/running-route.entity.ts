@@ -61,6 +61,9 @@ export class RunningRoute {
   @OneToMany(() => RouteTag, (routeTag) => routeTag.runningRoute)
   routeTags: RouteTag[];
 
+  @OneToMany(() => Image, (image) => image.runningRoute)
+  images: Image[];
+
   @OneToOne(
     () => RunningRoute,
     (runningRoute) => runningRoute.recommendedRoute,

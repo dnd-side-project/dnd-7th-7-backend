@@ -10,6 +10,7 @@ import { Like } from './user/entities/like.entity';
 import { UserTag } from './user/entities/user-tag.entity';
 import { RouteTag } from './running-route/entities/route-tag.entities';
 import { RunningRouteModule } from './running-route/running-route.module';
+import { Image } from './running-route/entities/image.entities';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { RunningRouteModule } from './running-route/running-route.module';
       username: process.env.MYSQLDB_USER,
       password: process.env.MYSQLDB_PASSWORD,
       database: process.env.MYSQLDB_DATABASE,
-      entities: [User, RunningRoute, Bookmark, Like, UserTag, RouteTag],
+      entities: [User, RunningRoute, Bookmark, Like, UserTag, RouteTag, Image],
       synchronize: true, // Fix me : set this value to false when deploy
     }),
     UserModule,
