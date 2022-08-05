@@ -1,10 +1,10 @@
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  PrimaryColumn,
 } from 'typeorm';
 import { RunningRoute } from '../../running-route/entities/running-route.entity';
 import { Bookmark } from './bookmark.entity';
@@ -13,22 +13,19 @@ import { UserTag } from './user-tag.entity';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column({ type: 'varchar', length: 20 })
   name: string;
 
   @Column({ type: 'varchar', length: 20 })
   nickname: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @PrimaryColumn({ type: 'varchar', length: 20 })
   userId: string;
 
   @Column({ type: 'varchar' })
   password: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 0 })
   numberOfUse: number;
 
   @Column({ type: 'date' })
