@@ -31,6 +31,15 @@ export class User {
   @Column({ type: 'int' })
   numberOfUse: number;
 
+  @Column({ type: 'date' })
+  birthDate: Date;
+
+  @Column({ type: 'varchar', length: 1 })
+  gender: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  address: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
