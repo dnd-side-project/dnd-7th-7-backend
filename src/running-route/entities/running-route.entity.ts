@@ -13,6 +13,7 @@ import { User } from '../../user/entities/user.entity';
 import { Bookmark } from '../../user/entities/bookmark.entity';
 import { Like } from '../../user/entities/like.entity';
 import { RouteTag } from './route-tag.entities';
+import { Image } from './image.entities';
 
 @Entity()
 export class RunningRoute {
@@ -38,6 +39,9 @@ export class RunningRoute {
 
   @Column({ type: 'varchar' })
   routeImage: string;
+
+  @Column({ type: 'varchar' })
+  location: string; // 시작 위치 정보 (OO시 OO구 OO동)
 
   @CreateDateColumn()
   createdAt: Date;
