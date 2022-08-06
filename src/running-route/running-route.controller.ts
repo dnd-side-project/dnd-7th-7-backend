@@ -9,7 +9,7 @@ export class RunningRouteController {
 
   @Post()
   @FormDataRequest()
-  create(@Body() createRunningRouteDto: CreateRunningRouteDto) {
-    return this.runningRouteService.create(createRunningRouteDto);
+  async create(@Body() createRunningRouteDto: CreateRunningRouteDto) {
+    return await this.runningRouteService.create(createRunningRouteDto);
   }
 }

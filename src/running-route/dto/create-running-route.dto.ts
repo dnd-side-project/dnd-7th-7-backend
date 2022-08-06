@@ -1,29 +1,43 @@
-import { Type } from 'class-transformer';
-import { IsString, IsArray, IsDateString } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsDateString,
+  IsOptional,
+  ArrayMinSize,
+} from 'class-validator';
 import { IsFile, MemoryStoredFile } from 'nestjs-form-data';
 
-class location {
-  public latitude: string;
-  public longitude: string;
-}
+type eachPoint = {
+  latitude: string;
+  longitude: string;
+};
 
 export class CreateRunningRouteDto {
   @IsArray()
-  @Type(() => location)
-  readonly arrayOfPos: location[];
+  @ArrayMinSize(2)
+  readonly arrayOfPos: eachPoint[];
 
   @IsString()
   readonly runningTime: string;
 
   @IsString()
-  review: string;
+  readonly review: string;
+
+  @IsString()
+  readonly location: string;
 
   @IsDateString()
-  runningDate: Date;
+  readonly runningDate: Date;
 
   @IsArray()
-  tags: number[];
+  @IsString({ each: true })
+  readonly tags: string[];
 
   @IsFile()
-  file: MemoryStoredFile;
+  readonly routeImage: MemoryStoredFile;
+
+  @IsArray()
+  @IsFile({ each: true })
+  @IsOptional()
+  readonly files: MemoryStoredFile[];
 }
