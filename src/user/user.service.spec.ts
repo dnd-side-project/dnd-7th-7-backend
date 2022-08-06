@@ -73,6 +73,7 @@ describe('UserService', () => {
         address: 'test address',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
+        email: 'test@test.com',
       };
 
       usersRepository.save.mockResolvedValue(user);
@@ -101,6 +102,7 @@ describe('UserService', () => {
         address: 'test address',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
+        email: 'test@test.com',
       };
 
       usersRepository.findOneBy.mockResolvedValue(user);
@@ -121,6 +123,7 @@ describe('UserService', () => {
         address: 'test address',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
+        email: 'test@test.com',
       };
 
       await expect(async () => {
@@ -140,6 +143,7 @@ describe('UserService', () => {
         address: 'test address',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
+        email: 'test@test.com',
       };
 
       const after = {
@@ -171,6 +175,7 @@ describe('UserService', () => {
         address: 'test address',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
+        email: 'test@test.com',
       };
 
       const body = {
