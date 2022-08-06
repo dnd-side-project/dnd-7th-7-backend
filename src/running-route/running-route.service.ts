@@ -7,6 +7,7 @@ import { RouteTag } from './entities/route-tag.entities';
 import * as AWS from 'aws-sdk';
 import { MemoryStoredFile } from 'nestjs-form-data';
 import { Image } from './entities/image.entities';
+import { runOnTransactionRollback, Transactional } from 'typeorm-transactional';
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -63,6 +64,7 @@ export class RunningRouteService {
     return imageUrl;
   }
 
+  @Transactional()
   async create(createRunningRouteDto: CreateRunningRouteDto): Promise<any> {
     const {
       arrayOfPos,
@@ -119,6 +121,8 @@ export class RunningRouteService {
             });
           });
         }
+      } else {
+        runOnTransactionRollback((e) => console.log(e));
       }
       return routeId;
     });

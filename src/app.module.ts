@@ -11,18 +11,38 @@ import { UserTag } from './user/entities/user-tag.entity';
 import { RouteTag } from './running-route/entities/route-tag.entities';
 import { RunningRouteModule } from './running-route/running-route.module';
 import { Image } from './running-route/entities/image.entities';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'mysql',
-      host: process.env.MYSQLDB_HOST,
-      port: parseInt(process.env.MYSQLDB_DOCKER_PORT, 10),
-      username: process.env.MYSQLDB_USER,
-      password: process.env.MYSQLDB_PASSWORD,
-      database: process.env.MYSQLDB_DATABASE,
-      entities: [User, RunningRoute, Bookmark, Like, UserTag, RouteTag, Image],
-      synchronize: true, // Fix me : set this value to false when deploy
+    TypeOrmModule.forRootAsync({
+      useFactory() {
+        return {
+          type: 'mysql',
+          host: process.env.MYSQLDB_HOST,
+          port: parseInt(process.env.MYSQLDB_DOCKER_PORT, 10),
+          username: process.env.MYSQLDB_USER,
+          password: process.env.MYSQLDB_PASSWORD,
+          database: process.env.MYSQLDB_DATABASE,
+          entities: [
+            User,
+            RunningRoute,
+            Bookmark,
+            Like,
+            UserTag,
+            RouteTag,
+            Image,
+          ],
+          synchronize: true, // Fix me : set this value to false when deploy
+        };
+      },
+      async dataSourceFactory(options) {
+        if (!options) {
+          throw new Error('Invalid options passed');
+        }
+        return addTransactionalDataSource(new DataSource(options));
+      },
     }),
     UserModule,
     RunningRouteModule,
