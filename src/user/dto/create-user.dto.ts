@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsDateString,
+  IsEmail,
   IsNumber,
   IsOptional,
   IsString,
@@ -37,4 +38,6 @@ export class CreateUserDto {
   @IsOptional()
   @IsNumber({}, { each: true })
   readonly secureTags: number[];
+  @IsEmail()
+  readonly email: string;
 }

@@ -38,6 +38,9 @@ export class User {
   @Column({ type: 'varchar', length: 50 })
   address: string;
 
+  @Column({ type: 'varchar', length: 30 })
+  email: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
