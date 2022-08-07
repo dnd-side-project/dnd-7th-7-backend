@@ -13,6 +13,7 @@ import { RunningRouteModule } from './running-route/running-route.module';
 import { Image } from './running-route/entities/image.entities';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
     }),
     UserModule,
     RunningRouteModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
