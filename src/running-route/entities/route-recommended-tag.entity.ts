@@ -21,6 +21,9 @@ export class RouteRecommendedTag {
   @ManyToOne(
     () => RunningRoute,
     (runningRoute) => runningRoute.routeRecommendedTags,
+    {
+      onDelete: 'CASCADE',
+    },
   )
   runningRoute: RunningRoute;
 }

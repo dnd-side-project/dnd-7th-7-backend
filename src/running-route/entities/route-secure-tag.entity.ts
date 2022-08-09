@@ -18,6 +18,12 @@ export class RouteSecureTag {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => RunningRoute, (runningRoute) => runningRoute.routeSecureTags)
+  @ManyToOne(
+    () => RunningRoute,
+    (runningRoute) => runningRoute.routeSecureTags,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   runningRoute: RunningRoute;
 }

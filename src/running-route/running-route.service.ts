@@ -322,4 +322,27 @@ export class RunningRouteService {
       });
     }
   }
+
+  async delete(id: number) {
+    const route = await this.runningRouteRepository.findOne({
+      where: { id: id },
+      relations: ['images'],
+    });
+
+    if (!route) {
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: [`Route with ID ${id} not found`],
+        error: 'NotFound',
+      });
+    }
+
+    this.deleteImageToAws(route.key);
+
+    if (route.images !== undefined) {
+      route.images.map(async (image) => await this.deleteImageToAws(image.key));
+    }
+
+    await this.runningRouteRepository.delete(route.id);
+  }
 }
