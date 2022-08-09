@@ -14,6 +14,7 @@ import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 import { RouteRecommendedTag } from './running-route/entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './running-route/entities/route-secure-tag.entity';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { RouteSecureTag } from './running-route/entities/route-secure-tag.entity
     }),
     UserModule,
     RunningRouteModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
