@@ -3,13 +3,19 @@ import { RunningRouteController } from './running-route.controller';
 import { RunningRouteService } from './running-route.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { RunningRoute } from './entities/running-route.entity';
-import { RouteTag } from './entities/route-tag.entities';
 import { NestjsFormDataModule, MemoryStoredFile } from 'nestjs-form-data';
-import { Image } from './entities/image.entities';
+import { Image } from './entities/image.entity';
+import { RouteSecureTag } from './entities/route-secure-tag.entity';
+import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([RunningRoute, RouteTag, Image]),
+    TypeOrmModule.forFeature([
+      RunningRoute,
+      RouteSecureTag,
+      RouteRecommendedTag,
+      Image,
+    ]),
     NestjsFormDataModule.config({ storage: MemoryStoredFile }),
   ],
   controllers: [RunningRouteController],

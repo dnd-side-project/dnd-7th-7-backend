@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RunningRouteService } from './running-route.service';
-import { RouteTag } from './entities/route-tag.entities';
-import { Image } from './entities/image.entities';
+import { Image } from './entities/image.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { RunningRoute } from './entities/running-route.entity';
+import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
+import { RouteSecureTag } from './entities/route-secure-tag.entity';
 
 describe('RunningRouteService', () => {
   let service: RunningRouteService;
@@ -17,7 +18,11 @@ describe('RunningRouteService', () => {
           useValue: {},
         },
         {
-          provide: getRepositoryToken(RouteTag),
+          provide: getRepositoryToken(RouteRecommendedTag),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(RouteSecureTag),
           useValue: {},
         },
         {
