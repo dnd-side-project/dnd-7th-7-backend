@@ -21,6 +21,8 @@ export class Image {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => RunningRoute, (runningRoute) => runningRoute.images)
+  @ManyToOne(() => RunningRoute, (runningRoute) => runningRoute.images, {
+    onDelete: 'CASCADE',
+  })
   runningRoute: RunningRoute;
 }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { FormDataRequest } from 'nestjs-form-data';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
 import { UpdateRunningRouteDto } from './dto/update-running-route.dto';
@@ -26,5 +34,10 @@ export class RunningRouteController {
     @Body() updateRunningRouteDto: UpdateRunningRouteDto,
   ) {
     return await this.runningRouteService.update(id, updateRunningRouteDto);
+  }
+
+  @Delete('/:id')
+  async delete(@Param('id') id: number) {
+    return await this.runningRouteService.delete(id);
   }
 }
