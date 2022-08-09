@@ -15,6 +15,9 @@ export class Image {
   @Column({ type: 'varchar' })
   routeImage: string;
 
+  @Column({ type: 'varchar' })
+  key: string;
+
   @CreateDateColumn()
   createdAt: Date;
 
