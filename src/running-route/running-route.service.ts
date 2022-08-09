@@ -15,6 +15,7 @@ import { runOnTransactionRollback, Transactional } from 'typeorm-transactional';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
 import { Geometry } from 'wkx';
+import { UpdateRunningRouteDto } from './dto/update-running-route.dto';
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -78,6 +79,15 @@ export class RunningRouteService {
       key: key,
     };
     return result;
+  }
+
+  async deleteImageToAws(key: string) {
+    const deleteParams = {
+      Bucket: process.env.AWS_S3_BUCKET_NAME,
+      Key: key,
+    };
+
+    await s3.deleteObject(deleteParams).promise();
   }
 
   @Transactional()
@@ -236,5 +246,80 @@ export class RunningRouteService {
     };
 
     return result;
+  }
+
+  async update(id: number, updateRunningRouteDto: UpdateRunningRouteDto) {
+    const route = await this.runningRouteRepository.findOne({
+      where: { id: id },
+      relations: ['routeRecommendedTags', 'routeSecureTags', 'images'],
+    });
+
+    if (!route) {
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: [`Route with ID ${id} not found`],
+        error: 'NotFound',
+      });
+    }
+
+    const { review, recommendedTags, secureTags, files } =
+      updateRunningRouteDto;
+
+    if (review) {
+      await this.runningRouteRepository.update(id, { review });
+    }
+
+    if (recommendedTags) {
+      if (route.routeRecommendedTags !== undefined) {
+        route.routeRecommendedTags.map(async (tag) => {
+          await this.routeRecommendedTagRepository.delete({
+            id: tag.id,
+          });
+        });
+      }
+      recommendedTags.map(async (tag) => {
+        await this.routeRecommendedTagRepository.save({
+          index: +tag,
+          runningRoute: route,
+        });
+      });
+    }
+
+    if (secureTags) {
+      if (route.routeSecureTags !== undefined) {
+        route.routeSecureTags.map(async (tag) => {
+          await this.routeSecureTagRepository.delete({
+            id: tag.id,
+          });
+        });
+      }
+      secureTags.map(async (tag) => {
+        await this.routeSecureTagRepository.save({
+          index: +tag,
+          runningRoute: route,
+        });
+      });
+    }
+
+    if (files) {
+      if (route.images !== undefined) {
+        route.images.map(async (image) => {
+          this.deleteImageToAws(image.key);
+          await this.imageRepository.delete({
+            id: image.id,
+          });
+        });
+      }
+
+      files.map((file) => {
+        this.uploadToAws(file).then(async (value) => {
+          await this.imageRepository.save({
+            routeImage: value['url'],
+            key: value['key'],
+            runningRoute: route,
+          });
+        });
+      });
+    }
   }
 }
