@@ -21,6 +21,9 @@ export class CreateRunningRouteDto {
   readonly runningTime: string;
 
   @IsString()
+  readonly distance: string;
+
+  @IsString()
   readonly review: string;
 
   @IsString()

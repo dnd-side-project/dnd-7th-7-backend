@@ -34,6 +34,9 @@ export class RunningRoute {
   @Column({ type: 'varchar', length: 100 })
   review: string;
 
+  @Column({ type: 'float' })
+  distance: number;
+
   @Column({ type: 'date' })
   runningDate: Date;
 
