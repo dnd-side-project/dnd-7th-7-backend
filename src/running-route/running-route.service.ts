@@ -1,4 +1,9 @@
-import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
@@ -9,6 +14,7 @@ import { Image } from './entities/image.entity';
 import { runOnTransactionRollback, Transactional } from 'typeorm-transactional';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
+import { Geometry } from 'wkx';
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -166,6 +172,62 @@ export class RunningRouteService {
       }
       return routeId;
     });
+    return result;
+  }
+
+  LinestringToArray(data: Geometry): Array<object> {
+    const linestring = data.toString();
+    const temp = linestring.slice(11, -1);
+    const points = temp.split(',');
+
+    const arrayOfPos = [];
+
+    points.map((point) => {
+      arrayOfPos.push({
+        latitude: +point.split(' ')[0],
+        longitude: +point.split(' ')[1],
+      });
+    });
+
+    return arrayOfPos;
+  }
+
+  async getById(id: number): Promise<object> {
+    const route = await this.runningRouteRepository.findOne({
+      where: { id: id },
+      relations: [
+        'routeRecommendedTags',
+        'routeSecureTags',
+        'images',
+        'mainRoute',
+      ],
+    });
+
+    if (!route) {
+      throw new NotFoundException({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: [`Route with ID ${id} not found`],
+        error: 'NotFound',
+      });
+    }
+
+    const result = {
+      id: route.id,
+      arrayOfPos: this.LinestringToArray(route.arrayOfPos),
+      runningTime: route.runningTime,
+      review: route.review,
+      distance: route.distance,
+      firstLocation: route.firstLocation,
+      secondLocation: route.secondLocation,
+      thirdLocation: route.thirdLocation,
+      runningDate: route.runningDate,
+      routeImage: route.routeImage,
+      recommendedTags: route.routeRecommendedTags.map((tag) => tag.index),
+      secureTags: route.routeSecureTags.map((tag) => tag.index),
+      files: route.images.map((image) => image.routeImage),
+      mainRoute: route.mainRoute ? route.mainRoute.id : null,
+    };
+
     return result;
   }
 }
