@@ -5,15 +5,15 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
-  OneToOne,
   OneToMany,
 } from 'typeorm';
 import { Geometry } from 'wkx';
 import { User } from '../../user/entities/user.entity';
 import { Bookmark } from '../../user/entities/bookmark.entity';
 import { Like } from '../../user/entities/like.entity';
-import { RouteTag } from './route-tag.entities';
-import { Image } from './image.entities';
+import { RouteRecommendedTag } from './route-recommended-tag.entity';
+import { RouteSecureTag } from './route-secure-tag.entity';
+import { Image } from './image.entity';
 
 @Entity()
 export class RunningRoute {
@@ -41,7 +41,13 @@ export class RunningRoute {
   routeImage: string;
 
   @Column({ type: 'varchar' })
-  location: string; // 시작 위치 정보 (OO시 OO구 OO동)
+  firstLocation: string;
+
+  @Column({ type: 'varchar' })
+  secondLocation: string;
+
+  @Column({ type: 'varchar' })
+  thirdLocation: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -58,16 +64,18 @@ export class RunningRoute {
   @OneToMany(() => Like, (like) => like.runningRoute)
   likes: Like[];
 
-  @OneToMany(() => RouteTag, (routeTag) => routeTag.runningRoute)
-  routeTags: RouteTag[];
+  @OneToMany(() => RouteRecommendedTag, (tag) => tag.runningRoute)
+  routeRecommendedTags: RouteRecommendedTag[];
+
+  @OneToMany(() => RouteSecureTag, (tag) => tag.runningRoute)
+  routeSecureTags: RouteSecureTag[];
 
   @OneToMany(() => Image, (image) => image.runningRoute)
   images: Image[];
 
-  @OneToOne(
-    () => RunningRoute,
-    (runningRoute) => runningRoute.recommendedRoute,
-    { nullable: true },
-  )
-  recommendedRoute: RunningRoute;
+  @ManyToOne(() => RunningRoute, (runningRoute) => runningRoute.subRoute)
+  mainRoute: RunningRoute;
+
+  @OneToMany(() => RunningRoute, (runningRoute) => runningRoute.mainRoute)
+  subRoute: RunningRoute[];
 }

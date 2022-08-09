@@ -4,8 +4,10 @@ import { NestjsFormDataModule } from 'nestjs-form-data';
 import { RunningRouteService } from './running-route.service';
 import { RunningRoute } from './entities/running-route.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Image } from './entities/image.entities';
-import { RouteTag } from './entities/route-tag.entities';
+import { Image } from './entities/image.entity';
+import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
+import { RouteSecureTag } from './entities/route-secure-tag.entity';
+
 describe('RunningRouteController', () => {
   let controller: RunningRouteController;
 
@@ -20,7 +22,11 @@ describe('RunningRouteController', () => {
           useValue: {},
         },
         {
-          provide: getRepositoryToken(RouteTag),
+          provide: getRepositoryToken(RouteRecommendedTag),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(RouteSecureTag),
           useValue: {},
         },
         {

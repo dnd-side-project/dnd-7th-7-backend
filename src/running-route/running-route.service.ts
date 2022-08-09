@@ -1,13 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
 import { RunningRoute } from './entities/running-route.entity';
-import { RouteTag } from './entities/route-tag.entities';
 import * as AWS from 'aws-sdk';
 import { MemoryStoredFile } from 'nestjs-form-data';
-import { Image } from './entities/image.entities';
+import { Image } from './entities/image.entity';
 import { runOnTransactionRollback, Transactional } from 'typeorm-transactional';
+import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
+import { RouteSecureTag } from './entities/route-secure-tag.entity';
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -21,14 +22,18 @@ export class RunningRouteService {
     @InjectRepository(RunningRoute)
     private runningRouteRepository: Repository<RunningRoute>,
 
-    @InjectRepository(RouteTag)
-    private routeTagRepository: Repository<RouteTag>,
+    @InjectRepository(RouteRecommendedTag)
+    private routeRecommendedTagRepository: Repository<RouteRecommendedTag>,
+
+    @InjectRepository(RouteSecureTag)
+    private routeSecureTagRepository: Repository<RouteSecureTag>,
 
     @InjectRepository(Image)
     private imageRepository: Repository<Image>,
   ) {
     this.runningRouteRepository = runningRouteRepository;
-    this.routeTagRepository = routeTagRepository;
+    this.routeRecommendedTagRepository = routeRecommendedTagRepository;
+    this.routeSecureTagRepository = routeSecureTagRepository;
     this.imageRepository = imageRepository;
   }
 
@@ -70,11 +75,15 @@ export class RunningRouteService {
       arrayOfPos,
       runningTime,
       review,
+      firstLocation,
+      secondLocation,
+      thirdLocation,
       runningDate,
-      tags,
-      files,
       routeImage,
-      location,
+      recommendedTags,
+      secureTags,
+      files,
+      mainRoute,
     } = createRunningRouteDto;
 
     const startPoint = `${arrayOfPos[0].latitude} ${arrayOfPos[0].longitude}`;
@@ -82,7 +91,22 @@ export class RunningRouteService {
     const route = arrayOfPos.map((v) => {
       return `${v.latitude} ${v.longitude}`;
     });
+
     const linestring = route.join(',');
+
+    if (mainRoute) {
+      const route = await this.runningRouteRepository.findOneBy({
+        id: mainRoute,
+      });
+
+      if (!route) {
+        throw new ForbiddenException({
+          statusCode: HttpStatus.FORBIDDEN,
+          message: ['Not Existed mainRoute'],
+          error: 'Forbidden',
+        });
+      }
+    }
 
     const result = this.uploadToAws(routeImage).then(async (value) => {
       const runningRoute = await this.runningRouteRepository
@@ -94,9 +118,12 @@ export class RunningRouteService {
           arrayOfPos: () => `ST_GeomFromText('LINESTRING(${linestring})')`,
           runningTime: () => `'${runningTime}'`,
           review: () => `'${review}'`,
-          location: () => `'${location}'`,
           runningDate: () => `'${runningDate}'`,
           routeImage: () => `'${value}'`,
+          firstLocation: () => `'${firstLocation}'`,
+          secondLocation: () => `'${secondLocation}'`,
+          thirdLocation: () => `'${thirdLocation}'`,
+          mainRoute: () => (mainRoute ? `'${mainRoute}'` : null),
           // todo: add user
         })
         .execute();
@@ -104,12 +131,23 @@ export class RunningRouteService {
       const routeId = runningRoute.identifiers[0].id;
 
       if (runningRoute) {
-        tags.map(async (tag) => {
-          await this.routeTagRepository.save({
-            index: +tag,
-            runningRoute: routeId,
+        if (recommendedTags) {
+          recommendedTags.map(async (tag) => {
+            await this.routeRecommendedTagRepository.save({
+              index: +tag,
+              runningRoute: routeId,
+            });
           });
-        });
+        }
+
+        if (secureTags) {
+          secureTags.map(async (tag) => {
+            await this.routeSecureTagRepository.save({
+              index: +tag,
+              runningRoute: routeId,
+            });
+          });
+        }
 
         if (files) {
           files.map((file) => {

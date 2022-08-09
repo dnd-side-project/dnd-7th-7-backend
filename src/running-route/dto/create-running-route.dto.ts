@@ -24,20 +24,35 @@ export class CreateRunningRouteDto {
   readonly review: string;
 
   @IsString()
-  readonly location: string;
+  readonly firstLocation: string;
+
+  @IsString()
+  readonly secondLocation: string;
+
+  @IsString()
+  readonly thirdLocation: string;
 
   @IsDateString()
   readonly runningDate: Date;
-
-  @IsArray()
-  @IsString({ each: true })
-  readonly tags: string[];
 
   @IsFile()
   readonly routeImage: MemoryStoredFile;
 
   @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  readonly recommendedTags: string[];
+
+  @IsArray()
+  @IsOptional()
+  @IsString({ each: true })
+  readonly secureTags: string[];
+
+  @IsArray()
   @IsFile({ each: true })
   @IsOptional()
   readonly files: MemoryStoredFile[];
+
+  @IsOptional()
+  readonly mainRoute: number;
 }

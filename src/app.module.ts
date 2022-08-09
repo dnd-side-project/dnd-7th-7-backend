@@ -8,11 +8,12 @@ import { RunningRoute } from './running-route/entities/running-route.entity';
 import { Bookmark } from './user/entities/bookmark.entity';
 import { Like } from './user/entities/like.entity';
 import { UserTag } from './user/entities/user-tag.entity';
-import { RouteTag } from './running-route/entities/route-tag.entities';
 import { RunningRouteModule } from './running-route/running-route.module';
-import { Image } from './running-route/entities/image.entities';
+import { Image } from './running-route/entities/image.entity';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
+import { RouteRecommendedTag } from './running-route/entities/route-recommended-tag.entity';
+import { RouteSecureTag } from './running-route/entities/route-secure-tag.entity';
 
 @Module({
   imports: [
@@ -31,7 +32,8 @@ import { addTransactionalDataSource } from 'typeorm-transactional';
             Bookmark,
             Like,
             UserTag,
-            RouteTag,
+            RouteRecommendedTag,
+            RouteSecureTag,
             Image,
           ],
           synchronize: true, // Fix me : set this value to false when deploy

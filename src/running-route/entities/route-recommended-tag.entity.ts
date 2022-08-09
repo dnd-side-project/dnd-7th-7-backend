@@ -8,7 +8,7 @@ import {
 import { RunningRoute } from './running-route.entity';
 
 @Entity()
-export class RouteTag {
+export class RouteRecommendedTag {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -18,6 +18,9 @@ export class RouteTag {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => RunningRoute, (runningRoute) => runningRoute.routeTags)
+  @ManyToOne(
+    () => RunningRoute,
+    (runningRoute) => runningRoute.routeRecommendedTags,
+  )
   runningRoute: RunningRoute;
 }
