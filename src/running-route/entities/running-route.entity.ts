@@ -44,6 +44,9 @@ export class RunningRoute {
   routeImage: string;
 
   @Column({ type: 'varchar' })
+  key: string;
+
+  @Column({ type: 'varchar' })
   firstLocation: string;
 
   @Column({ type: 'varchar' })

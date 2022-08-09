@@ -43,7 +43,7 @@ export class RunningRouteService {
     this.imageRepository = imageRepository;
   }
 
-  async uploadToAws(image: MemoryStoredFile): Promise<string> {
+  async uploadToAws(image: MemoryStoredFile): Promise<object> {
     const key = `${Date.now() + image.originalName}`;
     const params = { Bucket: process.env.AWS_S3_BUCKET_NAME, Key: key };
 
@@ -72,7 +72,12 @@ export class RunningRouteService {
         r(url.split('?')[0]);
       }),
     );
-    return imageUrl;
+
+    const result = {
+      url: imageUrl,
+      key: key,
+    };
+    return result;
   }
 
   @Transactional()
@@ -127,7 +132,8 @@ export class RunningRouteService {
           review: () => `'${review}'`,
           distance: () => `'+${distance}'`,
           runningDate: () => `'${runningDate}'`,
-          routeImage: () => `'${value}'`,
+          routeImage: () => `'${value['url']}'`,
+          key: () => `'${value['key']}'`,
           firstLocation: () => `'${firstLocation}'`,
           secondLocation: () => `'${secondLocation}'`,
           thirdLocation: () => `'${thirdLocation}'`,
@@ -161,7 +167,8 @@ export class RunningRouteService {
           files.map((file) => {
             this.uploadToAws(file).then(async (value) => {
               await this.imageRepository.save({
-                routeImage: value,
+                routeImage: value['url'],
+                key: value['key'],
                 runningRoute: routeId,
               });
             });
