@@ -20,6 +20,9 @@ export class RunningRoute {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'varchar', length: 50 })
+  routeName: string;
+
   @Column({ type: 'point' })
   startPoint: Geometry;
 

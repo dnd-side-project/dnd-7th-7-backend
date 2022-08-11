@@ -13,6 +13,9 @@ type eachPoint = {
 };
 
 export class CreateRunningRouteDto {
+  @IsString()
+  readonly routeName: string;
+
   @IsArray()
   @ArrayMinSize(2)
   readonly arrayOfPos: eachPoint[];

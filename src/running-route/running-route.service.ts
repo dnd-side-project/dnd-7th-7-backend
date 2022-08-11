@@ -93,6 +93,7 @@ export class RunningRouteService {
   @Transactional()
   async create(createRunningRouteDto: CreateRunningRouteDto): Promise<any> {
     const {
+      routeName,
       arrayOfPos,
       runningTime,
       review,
@@ -136,6 +137,7 @@ export class RunningRouteService {
         .insert()
         .into(RunningRoute)
         .values({
+          routeName: () => `'${routeName}'`,
           startPoint: () => `ST_GeomFromText('POINT(${startPoint})')`,
           arrayOfPos: () => `ST_GeomFromText('LINESTRING(${linestring})')`,
           runningTime: () => `'${runningTime}'`,
@@ -230,6 +232,7 @@ export class RunningRouteService {
 
     const result = {
       id: route.id,
+      routeName: route.routeName,
       arrayOfPos: this.LinestringToArray(route.arrayOfPos),
       runningTime: route.runningTime,
       review: route.review,
