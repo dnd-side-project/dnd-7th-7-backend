@@ -16,6 +16,7 @@ import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
 import { Geometry } from 'wkx';
 import { UpdateRunningRouteDto } from './dto/update-running-route.dto';
+import { SearchQueryStringDto } from './dto/search-query-string.dto';
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -207,7 +208,6 @@ export class RunningRouteService {
         longitude: +point.split(' ')[1],
       });
     });
-
     return arrayOfPos;
   }
 
@@ -230,10 +230,13 @@ export class RunningRouteService {
       });
     }
 
+    const arrayOfPos = this.LinestringToArray(route.arrayOfPos);
+
     const result = {
       id: route.id,
       routeName: route.routeName,
-      arrayOfPos: this.LinestringToArray(route.arrayOfPos),
+      startPoint: arrayOfPos[0],
+      arrayOfPos: arrayOfPos,
       runningTime: route.runningTime,
       review: route.review,
       distance: route.distance,
@@ -347,5 +350,34 @@ export class RunningRouteService {
     }
 
     await this.runningRouteRepository.delete(route.id);
+  }
+
+  async search(searchQueryStringDto: SearchQueryStringDto) {
+    const { radius, latitude, longitude, recommendedTags, secureTags } =
+      searchQueryStringDto;
+
+    const distance = `6371*acos(cos(radians(${latitude}))*cos(radians(st_x(startpoint)))*cos(radians(st_y(startpoint))-radians(${longitude}))+sin(radians(${latitude}))*sin(radians(st_x(startpoint))))`;
+
+    const routes = await this.runningRouteRepository
+      .createQueryBuilder('route')
+      .select('DISTINCT route.id')
+      .leftJoin('route.routeRecommendedTags', 'routeRecommendedTag')
+      .leftJoin('route.routeSecureTags', 'routeSecureTag')
+      .addSelect(distance, 'distance')
+      .having(`distance <= ${radius}`)
+      .where(
+        'routeRecommendedTag.index IN (:...recommendedTags) OR routeSecureTag.index IN (:...secureTags)',
+        { recommendedTags: recommendedTags, secureTags: secureTags },
+      )
+      .orderBy('distance', 'ASC')
+      .getRawMany();
+
+    const result = await Promise.all(
+      routes.map(async (route) => {
+        return await this.getById(route.id);
+      }),
+    );
+
+    return result;
   }
 }

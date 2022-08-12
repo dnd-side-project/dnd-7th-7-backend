@@ -6,9 +6,11 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { FormDataRequest } from 'nestjs-form-data';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
+import { SearchQueryStringDto } from './dto/search-query-string.dto';
 import { UpdateRunningRouteDto } from './dto/update-running-route.dto';
 import { RunningRouteService } from './running-route.service';
 
@@ -20,6 +22,11 @@ export class RunningRouteController {
   @FormDataRequest()
   async create(@Body() createRunningRouteDto: CreateRunningRouteDto) {
     return await this.runningRouteService.create(createRunningRouteDto);
+  }
+
+  @Get('/search')
+  async search(@Query() searchQueryStringDto: SearchQueryStringDto) {
+    return await this.runningRouteService.search(searchQueryStringDto);
   }
 
   @Get('/:id')
