@@ -4,11 +4,12 @@ import {
   CreateDateColumn,
   ManyToOne,
   Column,
+  JoinColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 
 @Entity()
-export class UserTag {
+export class UserSecureTag {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -18,6 +19,7 @@ export class UserTag {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.userTags)
+  @ManyToOne(() => User, (user) => user.userSecureTags, { onDelete: 'CASCADE' })
+  @JoinColumn()
   user: User;
 }

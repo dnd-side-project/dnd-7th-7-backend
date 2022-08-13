@@ -1,4 +1,10 @@
-import { IsDateString, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -21,4 +27,14 @@ export class CreateUserDto {
 
   @IsString()
   readonly address: string;
+
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  readonly recommendedTags: number[];
+
+  @IsArray()
+  @IsOptional()
+  @IsNumber({}, { each: true })
+  readonly secureTags: number[];
 }

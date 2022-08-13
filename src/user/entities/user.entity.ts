@@ -9,7 +9,8 @@ import {
 import { RunningRoute } from '../../running-route/entities/running-route.entity';
 import { Bookmark } from './bookmark.entity';
 import { Like } from './like.entity';
-import { UserTag } from './user-tag.entity';
+import { UserRecommendedTag } from './user-recommended-tag.entity';
+import { UserSecureTag } from './user-secure-tag.entity';
 
 @Entity()
 export class User {
@@ -52,6 +53,12 @@ export class User {
   @OneToMany(() => Like, (like) => like.user)
   likes: Like[];
 
-  @OneToMany(() => UserTag, (userTag) => userTag.user)
-  userTags: UserTag[];
+  @OneToMany(
+    () => UserRecommendedTag,
+    (userRecommendedTag) => userRecommendedTag.user,
+  )
+  userRecommendedTags: UserRecommendedTag[];
+
+  @OneToMany(() => UserSecureTag, (userSecureTag) => userSecureTag.user)
+  userSecureTags: UserSecureTag[];
 }
