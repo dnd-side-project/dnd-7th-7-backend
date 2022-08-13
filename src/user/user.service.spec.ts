@@ -3,6 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as moment from 'moment-timezone';
 import { Repository } from 'typeorm';
+import { UserRecommendedTag } from './entities/user-recommended-tag.entity';
+import { UserSecureTag } from './entities/user-secure-tag.entity';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
@@ -12,6 +14,12 @@ const mockRepository = () => ({
   create: jest.fn(),
   update: jest.fn(),
   delete: jest.fn(),
+  createQueryBuilder: jest.fn().mockReturnValue({
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    select: jest.fn().mockReturnThis(),
+    execute: jest.fn().mockReturnThis(),
+  }),
 });
 
 type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
@@ -19,6 +27,8 @@ type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
 describe('UserService', () => {
   let service: UserService;
   let usersRepository: MockRepository<User>;
+  let userRecommendedTagsRepository: MockRepository<UserRecommendedTag>;
+  let userSecureTagsRepository: MockRepository<UserSecureTag>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -28,11 +38,23 @@ describe('UserService', () => {
           provide: getRepositoryToken(User),
           useValue: mockRepository(),
         },
+        {
+          provide: getRepositoryToken(UserRecommendedTag),
+          useValue: mockRepository(),
+        },
+        {
+          provide: getRepositoryToken(UserSecureTag),
+          useValue: mockRepository(),
+        },
       ],
     }).compile();
 
     service = module.get<UserService>(UserService);
     usersRepository = module.get(getRepositoryToken(User));
+    userRecommendedTagsRepository = module.get(
+      getRepositoryToken(UserRecommendedTag),
+    );
+    userSecureTagsRepository = module.get(getRepositoryToken(UserSecureTag));
   });
 
   it('should be defined', () => {
@@ -49,9 +71,17 @@ describe('UserService', () => {
         birthDate: moment().toDate(),
         gender: 'F',
         address: 'test address',
+        recommendedTags: [1, 2, 4],
+        secureTags: [1, 3, 5],
       };
 
       usersRepository.save.mockResolvedValue(user);
+      userRecommendedTagsRepository.createQueryBuilder.mockResolvedValue(
+        user['recommendedTags'],
+      );
+      userSecureTagsRepository.createQueryBuilder.mockResolvedValue(
+        user['secureTags'],
+      );
 
       const res = await service.create(user);
       res.password = expect.anything();
@@ -69,6 +99,8 @@ describe('UserService', () => {
         birthDate: moment().toDate(),
         gender: 'F',
         address: 'test address',
+        recommendedTags: [1, 2, 4],
+        secureTags: [1, 3, 5],
       };
 
       usersRepository.findOneBy.mockResolvedValue(user);
@@ -87,6 +119,8 @@ describe('UserService', () => {
         birthDate: moment().toDate(),
         gender: 'A',
         address: 'test address',
+        recommendedTags: [1, 2, 4],
+        secureTags: [1, 3, 5],
       };
 
       await expect(async () => {
@@ -104,6 +138,8 @@ describe('UserService', () => {
         birthDate: moment().toDate(),
         gender: 'A',
         address: 'test address',
+        recommendedTags: [1, 2, 4],
+        secureTags: [1, 3, 5],
       };
 
       const after = {
@@ -133,6 +169,8 @@ describe('UserService', () => {
         birthDate: moment().toDate(),
         gender: 'A',
         address: 'test address',
+        recommendedTags: [1, 2, 4],
+        secureTags: [1, 3, 5],
       };
 
       const body = {
