@@ -380,4 +380,31 @@ export class RunningRouteService {
 
     return result;
   }
+
+  async checkRunningExperience(id: number, userId: string) {
+    const route = await this.runningRouteRepository.findOneBy({
+      id: id,
+    });
+
+    if (!route) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: [`MainRoute with ID ${id} not exist`],
+        error: 'Forbidden',
+      });
+    }
+
+    const isExist = await this.runningRouteRepository
+      .createQueryBuilder('route')
+      .select('route.id')
+      .where('route.mainRouteId = :id', { id })
+      .andWhere('route.userUserId = :userId', { userId })
+      .execute();
+
+    if (isExist.length === 0) {
+      return { check: false };
+    } else {
+      return { check: true };
+    }
+  }
 }

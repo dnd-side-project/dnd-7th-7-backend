@@ -7,8 +7,11 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { FormDataRequest } from 'nestjs-form-data';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
 import { SearchQueryStringDto } from './dto/search-query-string.dto';
 import { UpdateRunningRouteDto } from './dto/update-running-route.dto';
@@ -27,6 +30,15 @@ export class RunningRouteController {
   @Get('/search')
   async search(@Query() searchQueryStringDto: SearchQueryStringDto) {
     return await this.runningRouteService.search(searchQueryStringDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/checkRunningExperience/:id')
+  async checkRunningExperience(@Param('id') id: number, @Req() req) {
+    return await this.runningRouteService.checkRunningExperience(
+      id,
+      req.user.sub,
+    );
   }
 
   @Get('/:id')
