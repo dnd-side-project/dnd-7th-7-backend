@@ -27,7 +27,12 @@ export class CreateUserDto {
   readonly gender: string;
 
   @IsString()
-  readonly address: string;
+  @IsOptional()
+  readonly city: string;
+
+  @IsString()
+  @IsOptional()
+  readonly state: string;
 
   @IsArray()
   @IsOptional()
@@ -38,6 +43,7 @@ export class CreateUserDto {
   @IsOptional()
   @IsNumber({}, { each: true })
   readonly secureTags: number[];
+
   @IsEmail()
   readonly email: string;
 }

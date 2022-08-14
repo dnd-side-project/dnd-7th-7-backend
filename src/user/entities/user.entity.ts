@@ -36,7 +36,10 @@ export class User {
   gender: string;
 
   @Column({ type: 'varchar', length: 50 })
-  address: string;
+  city: string;
+
+  @Column({ type: 'varchar', length: 50 })
+  state: string;
 
   @Column({ type: 'varchar', length: 30 })
   email: string;
