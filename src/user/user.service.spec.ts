@@ -70,7 +70,8 @@ describe('UserService', () => {
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'F',
-        address: 'test address',
+        city: '서울특별시',
+        state: '성동구',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
         email: 'test@test.com',
@@ -99,7 +100,8 @@ describe('UserService', () => {
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'F',
-        address: 'test address',
+        city: '서울특별시',
+        state: '성동구',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
         email: 'test@test.com',
@@ -120,7 +122,8 @@ describe('UserService', () => {
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'A',
-        address: 'test address',
+        city: '서울특별시',
+        state: '성동구',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
         email: 'test@test.com',
@@ -140,7 +143,8 @@ describe('UserService', () => {
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'A',
-        address: 'test address',
+        city: '서울특별시',
+        state: '성동구',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
         email: 'test@test.com',
@@ -156,7 +160,8 @@ describe('UserService', () => {
 
     it('update non existed user', async () => {
       const body = {
-        address: 'test address',
+        city: '서울특별시',
+        state: '성동구',
       };
 
       await expect(async () => {
@@ -172,7 +177,8 @@ describe('UserService', () => {
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'A',
-        address: 'test address',
+        city: '서울특별시',
+        state: '성동구',
         recommendedTags: [1, 2, 4],
         secureTags: [1, 3, 5],
         email: 'test@test.com',
