@@ -14,7 +14,7 @@ import { UserSecureTag } from './user-secure-tag.entity';
 
 @Entity()
 export class User {
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 20, nullable: true })
   name: string;
 
   @Column({ type: 'varchar', length: 20 })
@@ -23,25 +23,25 @@ export class User {
   @PrimaryColumn({ type: 'varchar', length: 20 })
   userId: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   password: string;
 
   @Column({ type: 'int', default: 0 })
   numberOfUse: number;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   birthDate: Date;
 
-  @Column({ type: 'varchar', length: 1 })
+  @Column({ type: 'varchar', length: 1, nullable: true })
   gender: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 50, nullable: true })
   city: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 50, nullable: true })
   state: string;
 
-  @Column({ type: 'varchar', length: 30 })
+  @Column({ type: 'varchar', length: 30, nullable: true })
   email: string;
 
   @CreateDateColumn()

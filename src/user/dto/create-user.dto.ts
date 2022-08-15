@@ -9,9 +9,11 @@ import {
 
 export class CreateUserDto {
   @IsString()
+  @IsOptional()
   readonly name: string;
 
   @IsString()
+  @IsOptional()
   readonly nickname: string;
 
   @IsString()
@@ -21,9 +23,11 @@ export class CreateUserDto {
   password: string;
 
   @IsDateString()
+  @IsOptional()
   readonly birthDate: Date;
 
   @IsString()
+  @IsOptional()
   readonly gender: string;
 
   @IsString()
@@ -45,5 +49,6 @@ export class CreateUserDto {
   readonly secureTags: number[];
 
   @IsEmail()
+  @IsOptional()
   readonly email: string;
 }
