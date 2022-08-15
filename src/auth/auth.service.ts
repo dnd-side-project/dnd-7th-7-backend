@@ -1,10 +1,17 @@
-import { ForbiddenException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginUserDto } from '../user/dto/login-user.dto';
+import { UserKakaoDto } from '../user/dto/kakao-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -46,5 +53,36 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign(payload),
     };
+  }
+
+  async kakaoLogin(
+    userKakaoDto: UserKakaoDto,
+  ): Promise<{ accessToken: string }> {
+    const user = await this.userRepository.findOneBy({
+      userId: userKakaoDto.kakaoId,
+    });
+    if (!user) {
+      const existUserNum = await this.userRepository.count({});
+      const user = {
+        userId: String(userKakaoDto.kakaoId),
+        nickname: '달리는다람쥐' + String(existUserNum + 1),
+      };
+      try {
+        await this.userRepository.save(user);
+      } catch (e) {
+        if (e.code === '23505') {
+          throw new ConflictException('Existing User');
+        } else {
+          console.log(e);
+          throw new InternalServerErrorException();
+        }
+      }
+    }
+    const payload = {
+      userId: userKakaoDto.kakaoId,
+      accessToken: userKakaoDto.accessToken,
+    };
+    const accessToken = await this.jwtService.sign(payload);
+    return { accessToken };
   }
 }
