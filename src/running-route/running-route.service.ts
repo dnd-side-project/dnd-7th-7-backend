@@ -215,6 +215,7 @@ export class RunningRouteService {
     const route = await this.runningRouteRepository.findOne({
       where: { id: id },
       relations: [
+        'user',
         'routeRecommendedTags',
         'routeSecureTags',
         'images',
@@ -234,6 +235,7 @@ export class RunningRouteService {
 
     const result = {
       id: route.id,
+      user: { userId: route.user.userId, nickname: route.user.nickname },
       routeName: route.routeName,
       startPoint: arrayOfPos[0],
       arrayOfPos: arrayOfPos,
@@ -250,6 +252,34 @@ export class RunningRouteService {
       files: route.images.map((image) => image.routeImage),
       mainRoute: route.mainRoute ? route.mainRoute.id : null,
     };
+
+    return result;
+  }
+
+  async getMainRouteDetail(id: number) {
+    const mainRoute = await this.getById(id);
+
+    if (mainRoute['mainRoute'] !== null) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['This route is not mainRoute'],
+        error: 'Forbidden',
+      });
+    }
+
+    const subRoutes = await this.runningRouteRepository
+      .createQueryBuilder('route')
+      .select('route.id')
+      .where('route.mainRouteId = :id', { id })
+      .execute();
+
+    const result = {};
+    result['mainRoute'] = mainRoute;
+    result['subRoutes'] = await Promise.all(
+      subRoutes.map(async (route) => {
+        return await this.getById(route.route_id);
+      }),
+    );
 
     return result;
   }

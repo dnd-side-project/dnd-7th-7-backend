@@ -41,7 +41,12 @@ export class RunningRouteController {
     );
   }
 
-  @Get('/:id')
+  @Get('/main/:id')
+  async getMainRouteDetail(@Param('id') id: number) {
+    return await this.runningRouteService.getMainRouteDetail(id);
+  }
+
+  @Get('/sub/:id')
   async getById(@Param('id') id: number) {
     return await this.runningRouteService.getById(id);
   }
