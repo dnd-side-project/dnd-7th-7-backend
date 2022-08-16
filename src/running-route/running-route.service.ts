@@ -461,4 +461,38 @@ export class RunningRouteService {
       return { check: true };
     }
   }
+
+  async getAllMainRoute(userId: string): Promise<object[]> {
+    const routes = await this.runningRouteRepository
+      .createQueryBuilder('route')
+      .select('route.id')
+      .where('mainRouteId is null')
+      .andWhere('route.userUserId = :userId', { userId })
+      .getMany();
+
+    const result = await Promise.all(
+      routes.map(async (route) => {
+        return await this.getById(route.id);
+      }),
+    );
+
+    return result;
+  }
+
+  async getAllSubRoute(userId: string): Promise<object[]> {
+    const routes = await this.runningRouteRepository
+      .createQueryBuilder('route')
+      .select('route.id')
+      .where('mainRouteId is not null')
+      .andWhere('route.userUserId = :userId', { userId })
+      .getMany();
+
+    const result = await Promise.all(
+      routes.map(async (route) => {
+        return await this.getById(route.id);
+      }),
+    );
+
+    return result;
+  }
 }
