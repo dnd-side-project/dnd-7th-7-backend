@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -92,7 +93,10 @@ export class RunningRouteService {
   }
 
   @Transactional()
-  async create(createRunningRouteDto: CreateRunningRouteDto): Promise<any> {
+  async create(
+    createRunningRouteDto: CreateRunningRouteDto,
+    userId: string,
+  ): Promise<any> {
     const {
       routeName,
       arrayOfPos,
@@ -151,7 +155,7 @@ export class RunningRouteService {
           secondLocation: () => `'${secondLocation}'`,
           thirdLocation: () => `'${thirdLocation}'`,
           mainRoute: () => (mainRoute ? `'${mainRoute}'` : null),
-          // todo: add user
+          user: () => `'${userId}'`,
         })
         .execute();
 
@@ -284,10 +288,14 @@ export class RunningRouteService {
     return result;
   }
 
-  async update(id: number, updateRunningRouteDto: UpdateRunningRouteDto) {
+  async update(
+    id: number,
+    updateRunningRouteDto: UpdateRunningRouteDto,
+    userId: string,
+  ) {
     const route = await this.runningRouteRepository.findOne({
       where: { id: id },
-      relations: ['routeRecommendedTags', 'routeSecureTags', 'images'],
+      relations: ['routeRecommendedTags', 'routeSecureTags', 'images', 'user'],
     });
 
     if (!route) {
@@ -297,6 +305,15 @@ export class RunningRouteService {
         error: 'NotFound',
       });
     }
+
+    if (route.user.userId !== userId) {
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized',
+      });
+    }
+
+    await this.runningRouteRepository.update(id, { updatedAt: new Date() });
 
     const { review, recommendedTags, secureTags, files } =
       updateRunningRouteDto;
@@ -359,10 +376,10 @@ export class RunningRouteService {
     }
   }
 
-  async delete(id: number) {
+  async delete(id: number, userId: string) {
     const route = await this.runningRouteRepository.findOne({
       where: { id: id },
-      relations: ['images'],
+      relations: ['images', 'user'],
     });
 
     if (!route) {
@@ -370,6 +387,13 @@ export class RunningRouteService {
         statusCode: HttpStatus.NOT_FOUND,
         message: [`Route with ID ${id} not found`],
         error: 'NotFound',
+      });
+    }
+
+    if (route.user.userId !== userId) {
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Unauthorized',
       });
     }
 
