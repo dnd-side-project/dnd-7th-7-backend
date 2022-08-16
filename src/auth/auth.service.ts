@@ -49,7 +49,7 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { username: user.name, sub: user.userId };
+    const payload = { nickname: user.nickname, userId: user.userId };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -79,8 +79,8 @@ export class AuthService {
       }
     }
     const payload = {
-      userId: userKakaoDto.kakaoId,
-      accessToken: userKakaoDto.accessToken,
+      nickname: user.nickname,
+      userId: user.userId,
     };
     const accessToken = await this.jwtService.sign(payload);
     return { accessToken };
