@@ -40,6 +40,18 @@ export class RunningRouteController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('/allSubRoute')
+  async getAllSubRoute(@Req() req) {
+    return await this.runningRouteService.getAllSubRoute(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/allMainRoute')
+  async getAllMainRoute(@Req() req) {
+    return await this.runningRouteService.getAllMainRoute(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Get('/checkRunningExperience/:id')
   async checkRunningExperience(@Param('id') id: number, @Req() req) {
     return await this.runningRouteService.checkRunningExperience(
