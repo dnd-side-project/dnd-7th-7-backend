@@ -26,6 +26,10 @@ const s3 = new AWS.S3({
   region: process.env.AWS_S3_REGION,
 });
 
+const RECOMMENDEDTAG = 5;
+const SECURETAG = 5;
+const RADIUS = 30;
+
 @Injectable()
 export class RunningRouteService {
   constructor(
@@ -272,6 +276,9 @@ export class RunningRouteService {
       });
     }
 
+    const tags = await this.sumTags(id);
+    Object.assign(mainRoute, tags);
+
     const subRoutes = await this.runningRouteRepository
       .createQueryBuilder('route')
       .select('route.id')
@@ -496,7 +503,7 @@ export class RunningRouteService {
       .createQueryBuilder('route')
       .select('DISTINCT route.id')
       .addSelect(distance, 'distance')
-      .having(`distance <= 30`)
+      .having(`distance <= ${RADIUS}`)
       .where('mainRouteId is null')
       .orderBy('distance', 'ASC')
       .getRawMany();
@@ -561,18 +568,22 @@ export class RunningRouteService {
     const allSecureTags = secureTags.concat(mainRoute['secureTags']);
 
     const result = { recommendedTags: {}, secureTags: {} };
-    for (let i = 1; i <= 5; i++) {
+
+    for (let i = 1; i <= RECOMMENDEDTAG; i++) {
       const recommendedTagCount = allRecommendedTags.filter(
         (element) => i === element,
       ).length;
+      result['recommendedTags'][i] = recommendedTagCount;
+    }
 
+    for (let i = 1; i <= SECURETAG; i++) {
       const secureTagCount = allSecureTags.filter(
         (element) => i === element,
       ).length;
 
-      result['recommendedTags'][i] = recommendedTagCount;
       result['secureTags'][i] = secureTagCount;
     }
+
     return result;
   }
 }
