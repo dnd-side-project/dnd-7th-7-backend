@@ -12,8 +12,9 @@ import {
 } from '@nestjs/common';
 import { FormDataRequest } from 'nestjs-form-data';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CityQueryStringDto } from './dto/city-query-string.dto';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
-import { SearchQueryStringDto } from './dto/search-query-string.dto';
+import { LocationQueryStringDto } from './dto/location-query-string.dto';
 import { UpdateRunningRouteDto } from './dto/update-running-route.dto';
 import { RunningRouteService } from './running-route.service';
 
@@ -34,9 +35,18 @@ export class RunningRouteController {
     );
   }
 
-  @Get('/search')
-  async search(@Query() searchQueryStringDto: SearchQueryStringDto) {
-    return await this.runningRouteService.search(searchQueryStringDto);
+  @Get('/searchLocation')
+  async searchBasedOnLocation(
+    @Query() searchQueryStringDto: LocationQueryStringDto,
+  ) {
+    return await this.runningRouteService.searchBasedOnLocation(
+      searchQueryStringDto,
+    );
+  }
+
+  @Get('/searchCity')
+  async searchBasedOnCity(@Query() cityQueryStringDto: CityQueryStringDto) {
+    return await this.runningRouteService.searchBasedOnCity(cityQueryStringDto);
   }
 
   @UseGuards(JwtAuthGuard)
