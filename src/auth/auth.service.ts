@@ -61,26 +61,34 @@ export class AuthService {
     const user = await this.userRepository.findOneBy({
       userId: userKakaoDto.kakaoId,
     });
-    if (!user) {
-      const existUserNum = await this.userRepository.count({});
-      const user = {
-        userId: String(userKakaoDto.kakaoId),
-        nickname: '달리는다람쥐' + String(existUserNum + 1),
+    if (user) {
+      const payload = {
+        nickname: user.nickname,
+        userId: user.userId,
       };
-      try {
-        await this.userRepository.save(user);
-      } catch (e) {
-        if (e.code === '23505') {
-          throw new ConflictException('Existing User');
-        } else {
-          console.log(e);
-          throw new InternalServerErrorException();
-        }
+      const accessToken = await this.jwtService.sign(payload);
+      return { accessToken };
+    }
+
+    const existUserNum = await this.userRepository.count({});
+    const newUser = {
+      userId: String(userKakaoDto.kakaoId),
+      nickname: '달리는다람쥐' + String(existUserNum + 1),
+    };
+    try {
+      await this.userRepository.save(newUser);
+    } catch (e) {
+      if (e.code === '23505') {
+        throw new ConflictException('Existing User');
+      } else {
+        console.log(e);
+        throw new InternalServerErrorException();
       }
     }
+
     const payload = {
-      nickname: user.nickname,
-      userId: user.userId,
+      nickname: newUser.nickname,
+      userId: newUser.userId,
     };
     const accessToken = await this.jwtService.sign(payload);
     return { accessToken };
