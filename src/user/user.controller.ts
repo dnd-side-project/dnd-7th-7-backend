@@ -1,7 +1,19 @@
-import { Controller, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Get,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 
 @Controller('user')
 export class UserController {
@@ -23,5 +35,23 @@ export class UserController {
   @Delete(':id')
   remove(@Param('id') id: string): Promise<void> {
     return this.userService.remove(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/bookmark/getAll')
+  getBookmarks(@Req() req) {
+    return this.userService.getBookmarks(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('bookmark/create')
+  async createBookmark(
+    @Body() createBookmarkDto: CreateBookmarkDto,
+    @Req() req,
+  ) {
+    return await this.userService.createBookmark(
+      createBookmarkDto,
+      req.user.userId,
+    );
   }
 }
