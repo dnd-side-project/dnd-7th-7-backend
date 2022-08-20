@@ -85,6 +85,15 @@ export class RunningRouteController {
     return await this.runningRouteService.checkRouteName(routeName);
   }
 
+  @Get('/recommendedRoute')
+  async getRecommendedRoute(
+    @Query() locationQueryStringDto: LocationQueryStringDto,
+  ) {
+    return await this.runningRouteService.getRecommendedRoute(
+      locationQueryStringDto,
+    );
+  }
+
   @UseGuards(JwtAuthGuard)
   @Put('/:id')
   @FormDataRequest()
