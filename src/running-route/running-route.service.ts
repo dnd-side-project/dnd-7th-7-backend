@@ -492,11 +492,10 @@ export class RunningRouteService {
     return result;
   }
 
-  async searchBasedOnLocation(
-    locationQueryStringDto: LocationQueryStringDto,
-  ): Promise<object[]> {
-    const { latitude, longitude } = locationQueryStringDto;
-
+  async calculateDistance(
+    latitude: number,
+    longitude: number,
+  ): Promise<RunningRoute[]> {
     const distance = `6371*acos(cos(radians(${latitude}))*cos(radians(st_x(startpoint)))*cos(radians(st_y(startpoint))-radians(${longitude}))+sin(radians(${latitude}))*sin(radians(st_x(startpoint))))`;
 
     const routes = await this.runningRouteRepository
@@ -507,6 +506,16 @@ export class RunningRouteService {
       .where('mainRouteId is null')
       .orderBy('distance', 'ASC')
       .getRawMany();
+
+    return routes;
+  }
+
+  async searchBasedOnLocation(
+    locationQueryStringDto: LocationQueryStringDto,
+  ): Promise<object[]> {
+    const { latitude, longitude } = locationQueryStringDto;
+
+    const routes = await this.calculateDistance(latitude, longitude);
 
     const result = await Promise.all(
       routes.map(async (route) => {
@@ -601,5 +610,34 @@ export class RunningRouteService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async getRecommendedRoute(
+    locationQueryStringDto: LocationQueryStringDto,
+  ): Promise<object[]> {
+    const { latitude, longitude } = locationQueryStringDto;
+
+    const routes = await this.calculateDistance(latitude, longitude);
+
+    const result = await Promise.all(
+      routes.map(async (route) => {
+        const tags = await this.sumTags(route.id);
+        const routeData = await this.getById(route.id);
+        const recommendedResult = {
+          id: routeData['id'],
+          routeName: routeData['routeName'],
+          runnigTime: routeData['runningTime'],
+          review: routeData['review'],
+          distance: routeData['distance'],
+          runningDate: routeData['runningDate'],
+          routeImage: routeData['routeImage'],
+        };
+
+        Object.assign(recommendedResult, tags);
+        return recommendedResult;
+      }),
+    );
+
+    return result;
   }
 }
