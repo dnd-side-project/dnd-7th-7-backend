@@ -80,6 +80,11 @@ export class RunningRouteController {
     return await this.runningRouteService.getById(id);
   }
 
+  @Get('/checkRouteName')
+  async checkRouteName(@Query('routeName') routeName: string) {
+    return await this.runningRouteService.checkRouteName(routeName);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Put('/:id')
   @FormDataRequest()
