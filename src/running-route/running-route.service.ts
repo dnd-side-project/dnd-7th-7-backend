@@ -6,7 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
 import { RunningRoute } from './entities/running-route.entity';
 import * as AWS from 'aws-sdk';
@@ -585,5 +585,21 @@ export class RunningRouteService {
     }
 
     return result;
+  }
+
+  async checkRouteName(routeName: string) {
+    try {
+      const nameCount = await this.runningRouteRepository.count({
+        where: { routeName: Like(`${routeName}%`) },
+      });
+
+      if (nameCount !== 0) {
+        return { result: true, count: nameCount };
+      } else {
+        return { result: false };
+      }
+    } catch (err) {
+      throw err;
+    }
   }
 }
