@@ -15,6 +15,7 @@ import { UserSecureTag } from './entities/user-secure-tag.entity';
 import { Bookmark } from './entities/bookmark.entity';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
 import { RunningRoute } from 'src/running-route/entities/running-route.entity';
+import { DeleteBookmarkDto } from './dto/delete-bookmark.dto';
 
 @Injectable()
 export class UserService {
@@ -201,5 +202,25 @@ export class UserService {
     bookmark.runningRoute = runningRoute;
     const result = await this.bookmarkRepository.save(bookmark);
     return result.id;
+  }
+
+  async deleteBookmark(deleteBookmarkDto: DeleteBookmarkDto,userId: string){
+    const isExist = await this.bookmarkRepository
+      .createQueryBuilder('bookmark')
+      .where('bookmark.user =:userId', { userId: userId })
+      .andWhere('bookmark.runningRoute =:runningRoute', {
+        runningRoute: deleteBookmarkDto.runningRoute,
+      })
+      .execute();
+
+    if (isExist && isExist.length === 0) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['No running route exist'],
+        error: 'Forbidden',
+      });
+    }
+
+    await this.bookmarkRepository.delete(isExist[0].bookmark_id);
   }
 }
