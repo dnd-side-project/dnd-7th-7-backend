@@ -12,6 +12,9 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { UserRecommendedTag } from './entities/user-recommended-tag.entity';
 import { UserSecureTag } from './entities/user-secure-tag.entity';
+import { Bookmark } from './entities/bookmark.entity';
+import { CreateBookmarkDto } from './dto/create-bookmark.dto';
+import { RunningRoute } from 'src/running-route/entities/running-route.entity';
 
 @Injectable()
 export class UserService {
@@ -22,6 +25,10 @@ export class UserService {
     private userRecommendedTagRepository: Repository<UserRecommendedTag>,
     @InjectRepository(UserSecureTag)
     private userSecureTagRepository: Repository<UserSecureTag>,
+    @InjectRepository(Bookmark)
+    private bookmarkRepository: Repository<Bookmark>,
+    @InjectRepository(RunningRoute)
+    private runningRouteRepository: Repository<RunningRoute>,
   ) {}
 
   async updateTagsInfo(userDto: UpdateUserDto) {
@@ -134,5 +141,65 @@ export class UserService {
 
   async remove(userId: string): Promise<void> {
     await this.userRepository.delete(userId);
+  }
+
+  async getBookmarks(userId: string) {
+    const bookmarks = await this.bookmarkRepository
+      .createQueryBuilder('bookmark')
+      .leftJoinAndSelect('bookmark.user', 'user')
+      .where('user.userId = :userId', { userId: userId })
+      .select('bookmark.runningRoute')
+      .execute();
+
+    return bookmarks;
+  }
+
+  async createBookmark(
+    createBookmarkDto: CreateBookmarkDto,
+    userId: string,
+  ): Promise<any> {
+    const user = await this.userRepository.findOneBy({
+      userId: userId,
+    });
+    if (!user) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Wrong userId'],
+        error: 'Forbidden',
+      });
+    }
+
+    const runningRoute = await this.runningRouteRepository.findOne({
+      where: { id: createBookmarkDto.runningRoute },
+    });
+    if (!runningRoute) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Wrong running route id'],
+        error: 'Forbidden',
+      });
+    }
+
+    const isExist = await this.bookmarkRepository
+      .createQueryBuilder('bookmark')
+      .where('bookmark.user =:userId', { userId: userId })
+      .andWhere('bookmark.runningRoute =:runningRoute', {
+        runningRoute: createBookmarkDto.runningRoute,
+      })
+      .execute();
+
+    if (isExist && isExist.length > 0) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Already registered running route'],
+        error: 'Forbidden',
+      });
+    }
+
+    const bookmark = new Bookmark();
+    bookmark.user = user;
+    bookmark.runningRoute = runningRoute;
+    const result = await this.bookmarkRepository.save(bookmark);
+    return result.id;
   }
 }
