@@ -14,6 +14,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
+import { DeleteBookmarkDto } from './dto/delete-bookmark.dto';
 
 @Controller('user')
 export class UserController {
@@ -51,6 +52,18 @@ export class UserController {
   ) {
     return await this.userService.createBookmark(
       createBookmarkDto,
+      req.user.userId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('bookmark/delete')
+  async deleteBookmark(
+    @Body() deleteBookmarkDto: DeleteBookmarkDto,
+    @Req() req,
+  ) {
+    return await this.userService.deleteBookmark(
+      deleteBookmarkDto,
       req.user.userId,
     );
   }
