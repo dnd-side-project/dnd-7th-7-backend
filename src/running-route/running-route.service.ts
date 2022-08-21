@@ -554,26 +554,34 @@ export class RunningRouteService {
   }
 
   async sumTags(id: number): Promise<object> {
-    const subRoutes = await this.runningRouteRepository
+    const subRouteRecommendedTag = await this.runningRouteRepository
       .createQueryBuilder('route')
       .select('route.id')
       .addSelect('RouteRecommendedTag.index')
-      .addSelect('RouteSecureTag.index')
       .leftJoin('route.routeRecommendedTags', 'RouteRecommendedTag')
+      .where('route.mainRouteId = :id', { id })
+      .execute();
+
+    const subRouteSecureTag = await this.runningRouteRepository
+      .createQueryBuilder('route')
+      .select('route.id')
+      .addSelect('RouteSecureTag.index')
       .leftJoin('route.routeSecureTags', 'RouteSecureTag')
       .where('route.mainRouteId = :id', { id })
       .execute();
 
     const mainRoute = await this.getById(id);
 
-    const recommendedTags = subRoutes.map(
-      (route) => route.RouteSecureTag_index,
+    const recommendedTags = subRouteRecommendedTag.map(
+      (route) => route.RouteRecommendedTag_index,
     );
     const allRecommendedTags = recommendedTags.concat(
       mainRoute['recommendedTags'],
     );
 
-    const secureTags = subRoutes.map((route) => route.RouteSecureTag_index);
+    const secureTags = subRouteSecureTag.map(
+      (route) => route.RouteSecureTag_index,
+    );
     const allSecureTags = secureTags.concat(mainRoute['secureTags']);
 
     const result = { recommendedTags: {}, secureTags: {} };
