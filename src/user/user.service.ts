@@ -14,7 +14,7 @@ import { UserRecommendedTag } from './entities/user-recommended-tag.entity';
 import { UserSecureTag } from './entities/user-secure-tag.entity';
 import { Bookmark } from './entities/bookmark.entity';
 import { CreateBookmarkDto } from './dto/create-bookmark.dto';
-import { RunningRoute } from 'src/running-route/entities/running-route.entity';
+import { RunningRoute } from '../running-route/entities/running-route.entity';
 import { DeleteBookmarkDto } from './dto/delete-bookmark.dto';
 
 @Injectable()
