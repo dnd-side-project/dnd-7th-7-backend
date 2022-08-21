@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { RunningRoute } from '../running-route/entities/running-route.entity';
+import { Bookmark } from './entities/bookmark.entity';
 import { UserRecommendedTag } from './entities/user-recommended-tag.entity';
 import { UserSecureTag } from './entities/user-secure-tag.entity';
 import { User } from './entities/user.entity';
@@ -24,6 +26,14 @@ describe('UserController', () => {
         },
         {
           provide: getRepositoryToken(UserSecureTag),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(Bookmark),
+          useValue: {},
+        },
+        {
+          provide: getRepositoryToken(RunningRoute),
           useValue: {},
         },
       ],

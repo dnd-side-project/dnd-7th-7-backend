@@ -2,7 +2,9 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import * as moment from 'moment-timezone';
+import { RunningRoute } from '../running-route/entities/running-route.entity';
 import { Repository } from 'typeorm';
+import { Bookmark } from './entities/bookmark.entity';
 import { UserRecommendedTag } from './entities/user-recommended-tag.entity';
 import { UserSecureTag } from './entities/user-secure-tag.entity';
 import { User } from './entities/user.entity';
@@ -44,6 +46,14 @@ describe('UserService', () => {
         },
         {
           provide: getRepositoryToken(UserSecureTag),
+          useValue: mockRepository(),
+        },
+        {
+          provide: getRepositoryToken(Bookmark),
+          useValue: mockRepository(),
+        },
+        {
+          provide: getRepositoryToken(RunningRoute),
           useValue: mockRepository(),
         },
       ],

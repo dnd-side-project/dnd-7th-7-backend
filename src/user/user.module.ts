@@ -6,7 +6,7 @@ import { User } from './entities/user.entity';
 import { UserRecommendedTag } from './entities/user-recommended-tag.entity';
 import { UserSecureTag } from './entities/user-secure-tag.entity';
 import { Bookmark } from './entities/bookmark.entity';
-import { RunningRoute } from 'src/running-route/entities/running-route.entity';
+import { RunningRoute } from '../running-route/entities/running-route.entity';
 
 @Module({
   imports: [
