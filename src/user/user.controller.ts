@@ -67,4 +67,16 @@ export class UserController {
       req.user.userId,
     );
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/getUseRecommended')
+  getUseRecommended(@Req() req) {
+    return this.userService.getUseRecommended(req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/increaseUseRecommended')
+  increaseUseRecommended(@Req() req) {
+    return this.userService.increaseUseRecommended(req.user.userId);
+  }
 }
