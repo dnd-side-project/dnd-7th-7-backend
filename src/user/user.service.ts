@@ -223,4 +223,18 @@ export class UserService {
 
     await this.bookmarkRepository.delete(isExist[0].bookmark_id);
   }
+
+  async getUseRecommended(userId: string) {
+    const useRecommended = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.userId = :userId', { userId: userId })
+      .select('user.numberOfUse')
+      .execute();
+
+    return useRecommended;
+  }
+
+  async increaseUseRecommended(userId: string) {
+    await this.userRepository.increment({ userId: userId }, 'numberOfUse', 1);
+  }
 }
