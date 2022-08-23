@@ -76,15 +76,14 @@ describe('UserService', () => {
       const user = {
         name: 'test_name',
         nickname: 'test_nickname',
-        userId: 'test_id',
+        userId: 'test@test.com',
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'F',
         city: '서울특별시',
         state: '성동구',
         recommendedTags: [1, 2, 4],
-        secureTags: [1, 3, 5],
-        email: 'test@test.com',
+        secureTags: [1, 3, 5]
       };
 
       usersRepository.save.mockResolvedValue(user);
@@ -106,15 +105,14 @@ describe('UserService', () => {
       const user = {
         name: 'test_name',
         nickname: 'test_nickname',
-        userId: 'test_id',
+        userId: 'test@test.com',
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'F',
         city: '서울특별시',
         state: '성동구',
         recommendedTags: [1, 2, 4],
-        secureTags: [1, 3, 5],
-        email: 'test@test.com',
+        secureTags: [1, 3, 5]
       };
 
       usersRepository.findOneBy.mockResolvedValue(user);
@@ -128,15 +126,14 @@ describe('UserService', () => {
       const user = {
         name: 'test_name',
         nickname: 'test_nickname',
-        userId: 'test_id',
+        userId: 'test@test.com',
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'A',
         city: '서울특별시',
         state: '성동구',
         recommendedTags: [1, 2, 4],
-        secureTags: [1, 3, 5],
-        email: 'test@test.com',
+        secureTags: [1, 3, 5]
       };
 
       await expect(async () => {
@@ -149,15 +146,14 @@ describe('UserService', () => {
       const before = {
         name: 'test_name',
         nickname: 'test_nickname',
-        userId: 'test_id',
+        userId: 'test@test.com',
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'A',
         city: '서울특별시',
         state: '성동구',
         recommendedTags: [1, 2, 4],
-        secureTags: [1, 3, 5],
-        email: 'test@test.com',
+        secureTags: [1, 3, 5]
       };
 
       const after = {
@@ -183,19 +179,18 @@ describe('UserService', () => {
       const user = {
         name: 'test_name',
         nickname: 'test_nickname',
-        userId: 'test_id',
+        userId: 'test@test.com',
         password: 'test1234',
         birthDate: moment().toDate(),
         gender: 'A',
         city: '서울특별시',
         state: '성동구',
         recommendedTags: [1, 2, 4],
-        secureTags: [1, 3, 5],
-        email: 'test@test.com',
+        secureTags: [1, 3, 5]
       };
 
       const body = {
-        userId: 'new_user_id',
+        userId: 'test_new@test.com',
       };
       usersRepository.findOneBy.mockResolvedValue(user);
       await expect(async () => {
