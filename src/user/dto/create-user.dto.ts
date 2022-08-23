@@ -47,8 +47,4 @@ export class CreateUserDto {
   @IsOptional()
   @IsNumber({}, { each: true })
   readonly secureTags: number[];
-
-  @IsEmail()
-  @IsOptional()
-  readonly email: string;
 }

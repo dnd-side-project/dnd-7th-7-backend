@@ -237,4 +237,30 @@ export class UserService {
   async increaseUseRecommended(userId: string) {
     await this.userRepository.increment({ userId: userId }, 'numberOfUse', 1);
   }
+
+  async checkId(userId: string) {
+    const isExist = await this.userRepository.findOneBy({
+      userId: userId,
+    });
+    if(isExist){
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Already registered userId'],
+        error: 'Forbidden',
+      });
+    }
+  }
+
+  async checkNickname(nickname: string){
+    const isExist = await this.userRepository.findOneBy({
+      nickname: nickname,
+    });
+    if(isExist){
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Already registered nickname'],
+        error: 'Forbidden',
+      });
+    }
+  }
 }

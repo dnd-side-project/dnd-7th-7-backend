@@ -20,7 +20,7 @@ export class User {
   @Column({ type: 'varchar', length: 20 })
   nickname: string;
 
-  @PrimaryColumn({ type: 'varchar', length: 20 })
+  @PrimaryColumn({ type: 'varchar', length: 50 })
   userId: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -40,9 +40,6 @@ export class User {
 
   @Column({ type: 'varchar', length: 50, nullable: true })
   state: string;
-
-  @Column({ type: 'varchar', length: 30, nullable: true })
-  email: string;
 
   @CreateDateColumn()
   createdAt: Date;

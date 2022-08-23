@@ -25,17 +25,19 @@ export class UserController {
     return await this.userService.create(createUserDto);
   }
 
-  @Put(':userId')
+  @UseGuards(JwtAuthGuard)
+  @Put()
   update(
-    @Param('userId') userId: string,
+    @Req() req,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<any> {
-    return this.userService.update(userId, updateUserDto);
+    return this.userService.update(req.user.userId, updateUserDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
-    return this.userService.remove(id);
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  remove(@Req() req): Promise<void> {
+    return this.userService.remove(req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -78,5 +80,15 @@ export class UserController {
   @Get('/increaseUseRecommended')
   increaseUseRecommended(@Req() req) {
     return this.userService.increaseUseRecommended(req.user.userId);
+  }
+
+  @Get('/checkId/:id')
+  checkId(@Param('id') id: string){
+    return this.userService.checkId(id);
+  }
+
+  @Get('/checkNickname/:nickname')
+  checkNickname(@Param('nickname') nickname: string){
+    return this.userService.checkNickname(nickname);
   }
 }
