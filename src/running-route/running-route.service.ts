@@ -6,13 +6,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Like, Repository } from 'typeorm';
+import { DataSource, Like, Repository } from 'typeorm';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
 import { RunningRoute } from './entities/running-route.entity';
 import * as AWS from 'aws-sdk';
 import { MemoryStoredFile } from 'nestjs-form-data';
 import { Image } from './entities/image.entity';
-import { runOnTransactionRollback, Transactional } from 'typeorm-transactional';
+import { Transactional } from 'typeorm-transactional';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
 import { Geometry } from 'wkx';
@@ -33,6 +33,8 @@ const RADIUS = 30;
 @Injectable()
 export class RunningRouteService {
   constructor(
+    private dataSource: DataSource,
+
     @InjectRepository(RunningRoute)
     private runningRouteRepository: Repository<RunningRoute>,
 
@@ -141,32 +143,49 @@ export class RunningRouteService {
       }
     }
 
+    const isExistRouteName = await this.runningRouteRepository.find({
+      where: { routeName: routeName },
+    });
+
+    if (isExistRouteName.length !== 0) {
+      throw new ForbiddenException({
+        statusCode: HttpStatus.FORBIDDEN,
+        message: ['Already Existed routeName'],
+        error: 'Forbidden',
+      });
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     const result = this.uploadToAws(routeImage).then(async (value) => {
-      const runningRoute = await this.runningRouteRepository
-        .createQueryBuilder()
-        .insert()
-        .into(RunningRoute)
-        .values({
-          routeName: () => `'${routeName}'`,
-          startPoint: () => `ST_GeomFromText('POINT(${startPoint})')`,
-          arrayOfPos: () => `ST_GeomFromText('LINESTRING(${linestring})')`,
-          runningTime: () => `'${runningTime}'`,
-          review: () => `'${review}'`,
-          distance: () => `'+${distance}'`,
-          runningDate: () => `'${runningDate}'`,
-          routeImage: () => `'${value['url']}'`,
-          key: () => `'${value['key']}'`,
-          firstLocation: () => `'${firstLocation}'`,
-          secondLocation: () => `'${secondLocation}'`,
-          thirdLocation: () => `'${thirdLocation}'`,
-          mainRoute: () => (mainRoute ? `'${mainRoute}'` : null),
-          user: () => `'${userId}'`,
-        })
-        .execute();
+      try {
+        const runningRoute = await this.runningRouteRepository
+          .createQueryBuilder()
+          .insert()
+          .into(RunningRoute)
+          .values({
+            routeName: () => `'${routeName}'`,
+            startPoint: () => `ST_GeomFromText('POINT(${startPoint})')`,
+            arrayOfPos: () => `ST_GeomFromText('LINESTRING(${linestring})')`,
+            runningTime: () => `'${runningTime}'`,
+            review: () => `'${review}'`,
+            distance: () => `'+${distance}'`,
+            runningDate: () => `'${runningDate}'`,
+            routeImage: () => `'${value['url']}'`,
+            key: () => `'${value['key']}'`,
+            firstLocation: () => `'${firstLocation}'`,
+            secondLocation: () => `'${secondLocation}'`,
+            thirdLocation: () => `'${thirdLocation}'`,
+            mainRoute: () => (mainRoute ? `'${mainRoute}'` : null),
+            user: () => `'${userId}'`,
+          })
+          .execute();
 
-      const routeId = runningRoute.identifiers[0].id;
+        const routeId = runningRoute.identifiers[0].id;
 
-      if (runningRoute) {
         if (recommendedTags) {
           recommendedTags.map(async (tag) => {
             await this.routeRecommendedTagRepository.save({
@@ -196,11 +215,18 @@ export class RunningRouteService {
             });
           });
         }
-      } else {
-        runOnTransactionRollback((e) => console.log(e));
+
+        await queryRunner.commitTransaction();
+
+        return routeId;
+      } catch (err) {
+        await queryRunner.rollbackTransaction();
+        throw err;
+      } finally {
+        await queryRunner.release();
       }
-      return routeId;
     });
+
     return result;
   }
 
@@ -321,66 +347,78 @@ export class RunningRouteService {
       });
     }
 
-    await this.runningRouteRepository.update(id, { updatedAt: new Date() });
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    const { review, recommendedTags, secureTags, files } =
-      updateRunningRouteDto;
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await this.runningRouteRepository.update(id, { updatedAt: new Date() });
 
-    if (review) {
-      await this.runningRouteRepository.update(id, { review });
-    }
+      const { review, recommendedTags, secureTags, files } =
+        updateRunningRouteDto;
 
-    if (recommendedTags) {
-      if (route.routeRecommendedTags !== undefined) {
-        route.routeRecommendedTags.map(async (tag) => {
-          await this.routeRecommendedTagRepository.delete({
-            id: tag.id,
-          });
-        });
-      }
-      recommendedTags.map(async (tag) => {
-        await this.routeRecommendedTagRepository.save({
-          index: +tag,
-          runningRoute: route,
-        });
-      });
-    }
-
-    if (secureTags) {
-      if (route.routeSecureTags !== undefined) {
-        route.routeSecureTags.map(async (tag) => {
-          await this.routeSecureTagRepository.delete({
-            id: tag.id,
-          });
-        });
-      }
-      secureTags.map(async (tag) => {
-        await this.routeSecureTagRepository.save({
-          index: +tag,
-          runningRoute: route,
-        });
-      });
-    }
-
-    if (files) {
-      if (route.images !== undefined) {
-        route.images.map(async (image) => {
-          this.deleteImageToAws(image.key);
-          await this.imageRepository.delete({
-            id: image.id,
-          });
-        });
+      if (review) {
+        await this.runningRouteRepository.update(id, { review });
       }
 
-      files.map((file) => {
-        this.uploadToAws(file).then(async (value) => {
-          await this.imageRepository.save({
-            routeImage: value['url'],
-            key: value['key'],
+      if (recommendedTags) {
+        if (route.routeRecommendedTags !== undefined) {
+          route.routeRecommendedTags.map(async (tag) => {
+            await this.routeRecommendedTagRepository.delete({
+              id: tag.id,
+            });
+          });
+        }
+        recommendedTags.map(async (tag) => {
+          await this.routeRecommendedTagRepository.save({
+            index: +tag,
             runningRoute: route,
           });
         });
-      });
+      }
+
+      if (secureTags) {
+        if (route.routeSecureTags !== undefined) {
+          route.routeSecureTags.map(async (tag) => {
+            await this.routeSecureTagRepository.delete({
+              id: tag.id,
+            });
+          });
+        }
+        secureTags.map(async (tag) => {
+          await this.routeSecureTagRepository.save({
+            index: +tag,
+            runningRoute: route,
+          });
+        });
+      }
+
+      if (files) {
+        if (route.images !== undefined) {
+          route.images.map(async (image) => {
+            this.deleteImageToAws(image.key);
+            await this.imageRepository.delete({
+              id: image.id,
+            });
+          });
+        }
+
+        files.map((file) => {
+          this.uploadToAws(file).then(async (value) => {
+            await this.imageRepository.save({
+              routeImage: value['url'],
+              key: value['key'],
+              runningRoute: route,
+            });
+          });
+        });
+      }
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
     }
   }
 

@@ -5,6 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { RunningRoute } from './entities/running-route.entity';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
+import { DataSource } from 'typeorm';
 
 describe('RunningRouteService', () => {
   let service: RunningRouteService;
@@ -13,6 +14,10 @@ describe('RunningRouteService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RunningRouteService,
+        {
+          provide: DataSource,
+          useValue: {},
+        },
         {
           provide: getRepositoryToken(RunningRoute),
           useValue: {},
