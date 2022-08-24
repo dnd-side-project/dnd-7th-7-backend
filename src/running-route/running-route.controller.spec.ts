@@ -7,6 +7,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Image } from './entities/image.entity';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
+import { DataSource } from 'typeorm';
 
 describe('RunningRouteController', () => {
   let controller: RunningRouteController;
@@ -17,6 +18,10 @@ describe('RunningRouteController', () => {
       controllers: [RunningRouteController],
       providers: [
         RunningRouteService,
+        {
+          provide: DataSource,
+          useValue: {},
+        },
         {
           provide: getRepositoryToken(RunningRoute),
           useValue: {},
