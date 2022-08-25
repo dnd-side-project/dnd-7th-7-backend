@@ -12,7 +12,6 @@ import { RunningRoute } from './entities/running-route.entity';
 import * as AWS from 'aws-sdk';
 import { MemoryStoredFile } from 'nestjs-form-data';
 import { Image } from './entities/image.entity';
-import { Transactional } from 'typeorm-transactional';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
 import { Geometry } from 'wkx';
@@ -99,10 +98,9 @@ export class RunningRouteService {
     await s3.deleteObject(deleteParams).promise();
   }
 
-  @Transactional()
   async create(
     createRunningRouteDto: CreateRunningRouteDto,
-    userId: string,
+    // userId: string,
   ): Promise<any> {
     const {
       routeName,
@@ -180,7 +178,7 @@ export class RunningRouteService {
             secondLocation: () => `'${secondLocation}'`,
             thirdLocation: () => `'${thirdLocation}'`,
             mainRoute: () => (mainRoute ? `'${mainRoute}'` : null),
-            user: () => `'${userId}'`,
+            // user: () => `'${userId}'`,
           })
           .execute();
 
@@ -325,7 +323,7 @@ export class RunningRouteService {
   async update(
     id: number,
     updateRunningRouteDto: UpdateRunningRouteDto,
-    userId: string,
+    // userId: string,
   ) {
     const route = await this.runningRouteRepository.findOne({
       where: { id: id },
@@ -340,12 +338,12 @@ export class RunningRouteService {
       });
     }
 
-    if (route.user.userId !== userId) {
-      throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Unauthorized',
-      });
-    }
+    // if (route.user.userId !== userId) {
+    //   throw new UnauthorizedException({
+    //     statusCode: HttpStatus.UNAUTHORIZED,
+    //     message: 'Unauthorized',
+    //   });
+    // }
 
     const queryRunner = this.dataSource.createQueryRunner();
 
@@ -422,7 +420,10 @@ export class RunningRouteService {
     }
   }
 
-  async delete(id: number, userId: string) {
+  async delete(
+    id: number,
+    // userId: string
+  ) {
     const route = await this.runningRouteRepository.findOne({
       where: { id: id },
       relations: ['images', 'user'],
@@ -436,12 +437,12 @@ export class RunningRouteService {
       });
     }
 
-    if (route.user.userId !== userId) {
-      throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Unauthorized',
-      });
-    }
+    // if (route.user.userId !== userId) {
+    //   throw new UnauthorizedException({
+    //     statusCode: HttpStatus.UNAUTHORIZED,
+    //     message: 'Unauthorized',
+    //   });
+    // }
 
     this.deleteImageToAws(route.key);
 
