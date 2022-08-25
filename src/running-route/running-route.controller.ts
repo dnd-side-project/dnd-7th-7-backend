@@ -22,16 +22,16 @@ import { RunningRouteService } from './running-route.service';
 export class RunningRouteController {
   constructor(private readonly runningRouteService: RunningRouteService) {}
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Post()
   @FormDataRequest()
   async create(
     @Body() createRunningRouteDto: CreateRunningRouteDto,
-    @Req() req,
+    // @Req() req,
   ) {
     return await this.runningRouteService.create(
       createRunningRouteDto,
-      req.user.userId,
+      // req.user.userId,
     );
   }
 
@@ -94,24 +94,30 @@ export class RunningRouteController {
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Put('/:id')
   @FormDataRequest()
   async update(
     @Param('id') id: number,
     @Body() updateRunningRouteDto: UpdateRunningRouteDto,
-    @Req() req,
+    //  @Req() req,
   ) {
     return await this.runningRouteService.update(
       id,
       updateRunningRouteDto,
-      req.user.userId,
+      // req.user.userId,
     );
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Delete('/:id')
-  async delete(@Param('id') id: number, @Req() req) {
-    return await this.runningRouteService.delete(id, req.user.userId);
+  async delete(
+    @Param('id') id: number,
+    // @Req() req)
+  ) {
+    return await this.runningRouteService.delete(
+      id,
+      //req.user.userId
+    );
   }
 }
