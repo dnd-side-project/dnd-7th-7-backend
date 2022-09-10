@@ -28,5 +28,16 @@ services:
     networks:
       - backend
 
+  redis:
+    image: redis:7.0
+    container_name: redis
+    env_file: ./.env
+    restart: always
+    ports:
+      - $REDIS_LOCAL_PORT:$REDIS_DOCKER_PORT
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    networks:
+      - backend
+
 networks:
   backend:
