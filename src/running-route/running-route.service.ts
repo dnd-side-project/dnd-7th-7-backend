@@ -18,6 +18,8 @@ import { Geometry } from 'wkx';
 import { UpdateRunningRouteDto } from './dto/update-running-route.dto';
 import { LocationQueryStringDto } from './dto/location-query-string.dto';
 import { CityQueryStringDto } from './dto/city-query-string.dto';
+import Redis from 'ioredis';
+import { InjectRedis } from '@liaoliaots/nestjs-redis';
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS_KEY,
@@ -32,6 +34,8 @@ const RADIUS = 30;
 @Injectable()
 export class RunningRouteService {
   constructor(
+    @InjectRedis() private redis: Redis,
+
     private dataSource: DataSource,
 
     @InjectRepository(RunningRoute)
@@ -190,6 +194,16 @@ export class RunningRouteService {
               index: +tag,
               runningRoute: routeId,
             });
+            const index = await this.redis.zscore(
+              process.env.REDIS_KEY,
+              `recommendedTag:${tag}`,
+            );
+
+            await this.redis.zadd(
+              process.env.REDIS_KEY,
+              +index + 1,
+              `recommendedTag:${tag}`,
+            );
           });
         }
 
@@ -199,6 +213,16 @@ export class RunningRouteService {
               index: +tag,
               runningRoute: routeId,
             });
+
+            const index = await this.redis.zscore(
+              process.env.REDIS_KEY,
+              `secureTag:${tag}`,
+            );
+            await this.redis.zadd(
+              process.env.REDIS_KEY,
+              +index + 1,
+              `secureTag:${tag}`,
+            );
           });
         }
 
@@ -686,5 +710,14 @@ export class RunningRouteService {
     );
 
     return result;
+  }
+
+  async getPopularTags(): Promise<string[]> {
+    try {
+      const result = await this.redis.zrevrange(process.env.REDIS_KEY, 0, 6);
+      return result;
+    } catch (err) {
+      throw err;
+    }
   }
 }

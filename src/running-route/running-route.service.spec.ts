@@ -6,6 +6,7 @@ import { RunningRoute } from './entities/running-route.entity';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
 import { DataSource } from 'typeorm';
+import { getRedisToken } from '@liaoliaots/nestjs-redis';
 
 describe('RunningRouteService', () => {
   let service: RunningRouteService;
@@ -14,6 +15,7 @@ describe('RunningRouteService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RunningRouteService,
+        { provide: getRedisToken('default'), useValue: {} },
         {
           provide: DataSource,
           useValue: {},
@@ -36,7 +38,6 @@ describe('RunningRouteService', () => {
         },
       ],
     }).compile();
-
     service = module.get<RunningRouteService>(RunningRouteService);
   });
 
