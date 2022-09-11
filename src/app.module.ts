@@ -16,6 +16,7 @@ import { RouteSecureTag } from './running-route/entities/route-secure-tag.entity
 import { AuthModule } from './auth/auth.module';
 import { UserRecommendedTag } from './user/entities/user-recommended-tag.entity';
 import { UserSecureTag } from './user/entities/user-secure-tag.entity';
+import { RedisModule } from '@liaoliaots/nestjs-redis';
 
 @Module({
   imports: [
@@ -47,6 +48,13 @@ import { UserSecureTag } from './user/entities/user-secure-tag.entity';
           throw new Error('Invalid options passed');
         }
         return addTransactionalDataSource(new DataSource(options));
+      },
+    }),
+    RedisModule.forRoot({
+      config: {
+        host: process.env.REDIS_HOST,
+        port: parseInt(process.env.REDIS_DOCKER_PORT),
+        password: process.env.REDIS_PASSWORD,
       },
     }),
     UserModule,

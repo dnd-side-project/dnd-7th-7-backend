@@ -8,6 +8,7 @@ import { Image } from './entities/image.entity';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
 import { DataSource } from 'typeorm';
+import { getRedisToken } from '@liaoliaots/nestjs-redis';
 
 describe('RunningRouteController', () => {
   let controller: RunningRouteController;
@@ -18,6 +19,7 @@ describe('RunningRouteController', () => {
       controllers: [RunningRouteController],
       providers: [
         RunningRouteService,
+        { provide: getRedisToken('default'), useValue: {} },
         {
           provide: DataSource,
           useValue: {},

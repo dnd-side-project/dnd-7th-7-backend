@@ -35,6 +35,11 @@ export class RunningRouteController {
     );
   }
 
+  @Get('/popularTags')
+  async getPopularTags() {
+    return await this.runningRouteService.getPopularTags();
+  }
+
   @Get('/searchLocation')
   async searchBasedOnLocation(
     @Query() searchQueryStringDto: LocationQueryStringDto,
