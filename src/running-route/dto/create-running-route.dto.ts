@@ -5,7 +5,6 @@ import {
   IsOptional,
   ArrayMinSize,
 } from 'class-validator';
-import { IsFile, MemoryStoredFile } from 'nestjs-form-data';
 
 type eachPoint = {
   latitude: string;
@@ -41,8 +40,8 @@ export class CreateRunningRouteDto {
   @IsDateString()
   readonly runningDate: Date;
 
-  @IsFile()
-  readonly routeImage: MemoryStoredFile;
+  @IsString()
+  readonly routeImage: string;
 
   @IsArray()
   @IsOptional()
@@ -55,9 +54,9 @@ export class CreateRunningRouteDto {
   readonly secureTags: string[];
 
   @IsArray()
-  @IsFile({ each: true })
   @IsOptional()
-  readonly files: MemoryStoredFile[];
+  @IsString({ each: true })
+  readonly files: string[];
 
   @IsOptional()
   readonly mainRoute: number;
