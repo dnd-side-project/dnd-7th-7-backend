@@ -10,7 +10,6 @@ import { DataSource, Like, Repository } from 'typeorm';
 import { CreateRunningRouteDto } from './dto/create-running-route.dto';
 import { RunningRoute } from './entities/running-route.entity';
 import * as AWS from 'aws-sdk';
-import { MemoryStoredFile } from 'nestjs-form-data';
 import { Image } from './entities/image.entity';
 import { RouteRecommendedTag } from './entities/route-recommended-tag.entity';
 import { RouteSecureTag } from './entities/route-secure-tag.entity';
@@ -56,16 +55,19 @@ export class RunningRouteService {
     this.imageRepository = imageRepository;
   }
 
-  async uploadToAws(image: MemoryStoredFile): Promise<object> {
-    const key = `${Date.now() + image.originalName}`;
+  async uploadToAws(image: string): Promise<object> {
+    const key = `${Date.now() + 'routeImage'}`;
     const params = { Bucket: process.env.AWS_S3_BUCKET_NAME, Key: key };
+
+    // base64 to buffer
+    const imageFile = Buffer.from(image, 'base64');
 
     // aws s3 upload
     await s3
-      .putObject(
+      .upload(
         {
           Key: key,
-          Body: image.buffer,
+          Body: imageFile,
           Bucket: process.env.AWS_S3_BUCKET_NAME,
         },
         (err) => {
