@@ -56,19 +56,24 @@ export class RunningRouteService {
   }
 
   async uploadToAws(image: string): Promise<object> {
-    const key = `${Date.now() + 'routeImage'}`;
-    const params = { Bucket: process.env.AWS_S3_BUCKET_NAME, Key: key };
+    // base64 string에서 확장자 추출
+    const reg_for_extension = new RegExp('\\/(.*)\\;');
+    const extension = reg_for_extension.exec(image)[1];
 
+    // base string에서 이미지 데이터 추출
+    const image_base64 = image.split(',')[1];
     // base64 to buffer
-    const imageFile = Buffer.from(image, 'base64');
+    const imageFile = Buffer.from(image_base64, 'base64');
 
+    const key = `${Date.now() + `routeImage.${extension}`}`;
     // aws s3 upload
     await s3
-      .upload(
+      .putObject(
         {
           Key: key,
           Body: imageFile,
           Bucket: process.env.AWS_S3_BUCKET_NAME,
+          ContentType: `image/${extension}`,
         },
         (err) => {
           if (err) {
@@ -79,6 +84,8 @@ export class RunningRouteService {
       .promise();
 
     // image url
+    const params = { Bucket: process.env.AWS_S3_BUCKET_NAME, Key: key };
+
     const imageUrl: string = await new Promise((r) =>
       s3.getSignedUrl('getObject', params, async (err, url) => {
         if (err) {
