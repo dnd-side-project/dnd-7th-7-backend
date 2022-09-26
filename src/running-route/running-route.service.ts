@@ -281,7 +281,7 @@ export class RunningRouteService {
     const route = await this.runningRouteRepository.findOne({
       where: { id: id },
       relations: [
-        'user',
+        // 'user',
         'routeRecommendedTags',
         'routeSecureTags',
         'images',
@@ -301,7 +301,7 @@ export class RunningRouteService {
 
     const result = {
       id: route.id,
-      user: { userId: route.user.userId, nickname: route.user.nickname },
+      // user: { userId: route.user.userId, nickname: route.user.nickname },
       routeName: route.routeName,
       startPoint: arrayOfPos[0],
       arrayOfPos: arrayOfPos,
