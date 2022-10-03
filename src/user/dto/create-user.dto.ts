@@ -1,8 +1,7 @@
 import {
   IsArray,
-  IsDateString,
-  IsEmail,
   IsNumber,
+  IsNumberString,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -22,9 +21,9 @@ export class CreateUserDto {
   @IsString()
   password: string;
 
-  @IsDateString()
+  @IsNumberString()
   @IsOptional()
-  readonly birthDate: Date;
+  readonly birthDate: number;
 
   @IsString()
   @IsOptional()
