@@ -29,8 +29,8 @@ export class User {
   @Column({ type: 'int', default: 0 })
   numberOfUse: number;
 
-  @Column({ type: 'date', nullable: true })
-  birthDate: Date;
+  @Column({ type: 'int', nullable: true })
+  birthDate: number;
 
   @Column({ type: 'varchar', length: 1, nullable: true })
   gender: string;
