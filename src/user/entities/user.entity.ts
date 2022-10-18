@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import {
   Entity,
   Column,
@@ -46,6 +47,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ nullable: true })
+  @Exclude()
+  currentHashedRefreshToken?: string;
 
   @OneToMany(() => RunningRoute, (runningRoute) => runningRoute.user)
   runningRoutes: RunningRoute[];

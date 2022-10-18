@@ -6,6 +6,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UserModule } from 'src/user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { KakaoStrategy } from './strategies/kakao.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
@@ -14,13 +15,16 @@ import { LocalStrategy } from './strategies/local.strategy';
   imports: [
     UserModule,
     PassportModule,
-    JwtModule.register({
-      secret: 'secret', // FIX ME
-      signOptions: { expiresIn: '3600s' },
-    }),
+    JwtModule.register({}),
     TypeOrmModule.forFeature([User]),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy, KakaoStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    KakaoStrategy,
+    JwtRefreshStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}
