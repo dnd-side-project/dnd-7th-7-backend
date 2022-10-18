@@ -49,10 +49,16 @@ export class AuthService {
   }
 
   async login(user: any) {
-    const payload = { nickname: user.nickname, userId: user.userId };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    const tokens = await this.getTokens(user.userId, user.nickname);
+    await this.updateRtHash(user.userId, tokens.refresh_token);
+    return tokens;
+  }
+
+  async logout(user: any) {
+    await this.userRepository.update(
+      { userId: user.userId },
+      { currentHashedRefreshToken: null },
+    );
   }
 
   async kakaoLogin(
@@ -92,5 +98,62 @@ export class AuthService {
     };
     const accessToken = await this.jwtService.sign(payload);
     return { accessToken };
+  }
+
+  async updateRtHash(userId: string, refresh_token: string) {
+    const hash = await this.hashData(refresh_token);
+    await this.userRepository.update(
+      { userId },
+      { currentHashedRefreshToken: hash },
+    );
+  }
+
+  async refreshTokens(user: any) {
+    console.log('user', user);
+    const isExist = await this.userRepository.findOneBy({
+      userId: user.userId,
+    });
+
+    if (!isExist || !isExist.currentHashedRefreshToken)
+      throw new ForbiddenException('Invalid credentials');
+
+    const rtMatches = bcrypt.compare(
+      user.refresh_token,
+      isExist.currentHashedRefreshToken,
+    );
+
+    if (!rtMatches) throw new ForbiddenException('Invalid credentials');
+
+    const tokens = await this.getTokens(user.userId, user.nickname);
+    await this.updateRtHash(user.userId, tokens.refresh_token);
+    return tokens;
+  }
+
+  hashData(data: string) {
+    return bcrypt.hash(data, 10);
+  }
+
+  async getTokens(userId: string, nickname: string) {
+    const [access_token, refresh_token] = await Promise.all([
+      this.jwtService.signAsync(
+        { userId: userId, nickname: nickname },
+        {
+          expiresIn: parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME),
+          secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        },
+      ),
+      this.jwtService.signAsync(
+        { userId: userId, nickname: nickname },
+        {
+          expiresIn: parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME),
+          secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+        },
+      ),
+    ]);
+
+    return {
+      access_token,
+      refresh_token,
+    };
   }
 }

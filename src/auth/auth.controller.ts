@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { KakaoAuthGuard } from './guards/kakao-auth.guard';
 import { UserKakaoDto } from 'src/user/dto/kakao-user.dto';
+import { JwtRefreshAuthGuard } from './guards/jwt-refresh-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -21,6 +22,12 @@ export class AuthController {
   @Post('login')
   async login(@Req() req) {
     return this.authService.login(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('logout')
+  async logout(@Req() req) {
+    return await this.authService.logout(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -47,5 +54,11 @@ export class AuthController {
   @Get('/kakao/profile')
   getKakaoProfile(@Req() req) {
     return req.user;
+  }
+
+  @UseGuards(JwtRefreshAuthGuard)
+  @Get('/refresh')
+  async getToken(@Req() req) {
+    return await this.authService.refreshTokens(req.user);
   }
 }
