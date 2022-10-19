@@ -8,4 +8,7 @@ export class UserKakaoDto {
   @IsString()
   @IsNotEmpty()
   accessToken: string;
+
+  @IsString()
+  refreshToken: string;
 }
