@@ -48,7 +48,9 @@ export class AuthService {
     }
   }
 
-  async login(user: any) {
+  async login(
+    user: any,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const tokens = await this.getTokens(user.userId, user.nickname);
     await this.updateRtHash(user.userId, tokens.refresh_token);
     return tokens;
@@ -63,17 +65,14 @@ export class AuthService {
 
   async kakaoLogin(
     userKakaoDto: UserKakaoDto,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.userRepository.findOneBy({
       userId: userKakaoDto.kakaoId,
     });
     if (user) {
-      const payload = {
-        nickname: user.nickname,
-        userId: user.userId,
-      };
-      const accessToken = await this.jwtService.sign(payload);
-      return { accessToken };
+      const tokens = await this.getTokens(user.userId, user.nickname);
+      await this.updateRtHash(user.userId, tokens.refresh_token);
+      return tokens;
     }
 
     const existUserNum = await this.userRepository.count({});
@@ -92,12 +91,9 @@ export class AuthService {
       }
     }
 
-    const payload = {
-      nickname: newUser.nickname,
-      userId: newUser.userId,
-    };
-    const accessToken = await this.jwtService.sign(payload);
-    return { accessToken };
+    const tokens = await this.getTokens(newUser.userId, newUser.nickname);
+    await this.updateRtHash(user.userId, tokens.refresh_token);
+    return tokens;
   }
 
   async updateRtHash(userId: string, refresh_token: string) {
@@ -109,7 +105,6 @@ export class AuthService {
   }
 
   async refreshTokens(user: any) {
-    console.log('user', user);
     const isExist = await this.userRepository.findOneBy({
       userId: user.userId,
     });

@@ -20,7 +20,9 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req) {
+  async login(
+    @Req() req,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     return this.authService.login(req.user);
   }
 
@@ -46,7 +48,9 @@ export class AuthController {
   @UseGuards(KakaoAuthGuard)
   @Get('/kakao/redirect')
   @HttpCode(200)
-  async kakaoLoginCallback(@Req() req): Promise<{ accessToken: string }> {
+  async kakaoLoginCallback(
+    @Req() req,
+  ): Promise<{ access_token: string; refresh_token: string }> {
     return this.authService.kakaoLogin(req.user as UserKakaoDto);
   }
 
